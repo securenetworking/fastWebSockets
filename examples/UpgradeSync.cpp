@@ -1,4 +1,4 @@
-/* We simply call the root header file "App.h", giving you uWS::App and uWS::SSLApp */
+/* We simply call the root header file "App.h", giving you fWS::App and fWS::SSLApp */
 #include "App.h"
 
 /* This is a simple WebSocket "sync" upgrade example.
@@ -11,16 +11,16 @@ int main() {
         int something;
     };
 
-    /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-     * You may swap to using uWS:App() if you don't need SSL */
-    uWS::SSLApp({
+    /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+     * You may swap to using fWS:App() if you don't need SSL */
+    fWS::SSLApp({
         /* There are example certificates in fastWebSockets.js repo */
 	    .key_file_name = "misc/key.pem",
 	    .cert_file_name = "misc/cert.pem",
 	    .passphrase = "1234"
 	}).ws<PerSocketData>("/*", {
         /* Settings */
-        .compression = uWS::SHARED_COMPRESSOR,
+        .compression = fWS::SHARED_COMPRESSOR,
         .maxPayloadLength = 16 * 1024,
         .idleTimeout = 10,
         .maxBackpressure = 1 * 1024 * 1024,
@@ -52,7 +52,7 @@ int main() {
              * Here we simply validate that indeed, something == 13 as set in upgrade handler. */
             std::cout << "Something is: " << static_cast<PerSocketData *>(ws->getUserData())->something << std::endl;
         },
-        .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+        .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
             /* We simply echo whatever data we get */
             ws->send(message, opCode);
         },

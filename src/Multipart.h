@@ -29,7 +29,7 @@
 #include <utility>
 #include <cctype>
 
-namespace uWS {
+namespace fWS {
 
     /* This one could possibly be shared with ExtensionsParser to some degree */
     struct ParameterParser {

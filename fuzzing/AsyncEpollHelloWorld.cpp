@@ -10,9 +10,9 @@ struct us_listen_socket_t *listen_socket;
 void test() {
 
     {
-        /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-        * You may swap to using uWS:App() if you don't need SSL */
-        auto app = uWS::App({
+        /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+        * You may swap to using fWS:App() if you don't need SSL */
+        auto app = fWS::App({
             /* There are example certificates in fastWebSockets.js repo */
             .key_file_name = "../misc/key.pem",
             .cert_file_name = "../misc/cert.pem",
@@ -24,7 +24,7 @@ void test() {
                 *aborted = true;
             });
 
-            uWS::Loop::get()->defer([res, aborted]() {
+            fWS::Loop::get()->defer([res, aborted]() {
                 if (!*aborted) {
                     res->cork([res, aborted]() {
                         // Todo: also test upgrade to websocket here
@@ -38,7 +38,7 @@ void test() {
 
         app.run();
     }
-    uWS::Loop::get()->free();
+    fWS::Loop::get()->free();
 }
 
 /* Thus function should shutdown the event-loop and let the test fall through */

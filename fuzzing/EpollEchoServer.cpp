@@ -17,27 +17,27 @@ void test() {
     /* First byte determines what compressor to use */
     unsigned char compressorByte;
     if (consume_byte(&compressorByte)) {
-        //uWS::Loop::get()->free();
+        //fWS::Loop::get()->free();
         return;
     }
 
-    uWS::CompressOptions compressors[] = {
-        uWS::DISABLED,
-        uWS::SHARED_COMPRESSOR,
-        uWS::DEDICATED_COMPRESSOR_3KB,
-        uWS::DEDICATED_COMPRESSOR_4KB,
-        uWS::DEDICATED_COMPRESSOR_8KB,
-        uWS::DEDICATED_COMPRESSOR_16KB,
-        uWS::DEDICATED_COMPRESSOR_32KB,
-        uWS::DEDICATED_COMPRESSOR_64KB,
-        uWS::DEDICATED_COMPRESSOR_128KB,
-        uWS::DEDICATED_COMPRESSOR_256KB
+    fWS::CompressOptions compressors[] = {
+        fWS::DISABLED,
+        fWS::SHARED_COMPRESSOR,
+        fWS::DEDICATED_COMPRESSOR_3KB,
+        fWS::DEDICATED_COMPRESSOR_4KB,
+        fWS::DEDICATED_COMPRESSOR_8KB,
+        fWS::DEDICATED_COMPRESSOR_16KB,
+        fWS::DEDICATED_COMPRESSOR_32KB,
+        fWS::DEDICATED_COMPRESSOR_64KB,
+        fWS::DEDICATED_COMPRESSOR_128KB,
+        fWS::DEDICATED_COMPRESSOR_256KB
     };
 
-    uWS::CompressOptions compressor = compressors[compressorByte % 10];
+    fWS::CompressOptions compressor = compressors[compressorByte % 10];
 
     {
-        auto app = uWS::App().ws<PerSocketData>("/broadcast", {
+        auto app = fWS::App().ws<PerSocketData>("/broadcast", {
             /* Settings */
             .compression = compressor,
             /* We want this to be low so that we can hit it, yet bigger than 256 */
@@ -48,7 +48,7 @@ void test() {
                 /* Subscribe to anything */
                 ws->subscribe(/*req->getHeader(*/"topic"/*)*/);
             },
-            .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+            .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
                 if (message.length() && message[0] == 'C') {
                     ws->close();
                 } else if (message.length() && message[0] == 'E') {
@@ -92,7 +92,7 @@ void test() {
                 //    ws->end(1006);
                 //}
             },
-            .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+            .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
                 if (message.length() > 300) {
                     /* Inform the sanitizer of the fault */
                     fprintf(stderr, "Too long message passed\n");
@@ -114,10 +114,10 @@ void test() {
                 /* Here we test send and end while uncorked, by having them send from deferred */
                 PerSocketData *psd = (PerSocketData *) ws->getUserData();
 
-                uWS::Loop::get()->defer([ws, valid = psd->valid]() {
+                fWS::Loop::get()->defer([ws, valid = psd->valid]() {
                     if (*valid.get()) {
                         /* We haven't been closed */
-                        ws->send("Hello!", uWS::TEXT, false);
+                        ws->send("Hello!", fWS::TEXT, false);
                         ws->end(1000);
                     }
                 });
@@ -135,7 +135,7 @@ void test() {
         app.run();
     }
 
-    uWS::Loop::get()->free();
+    fWS::Loop::get()->free();
 }
 
 /* Thus function should shutdown the event-loop and let the test fall through */

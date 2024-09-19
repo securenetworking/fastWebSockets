@@ -8,7 +8,7 @@
 unsigned int messages = 0;
 
 struct Impl {
-    static bool refusePayloadLength(uint64_t length, uWS::WebSocketState<true> *wState, void *s) {
+    static bool refusePayloadLength(uint64_t length, fWS::WebSocketState<true> *wState, void *s) {
 
         /* We need a limit */
         if (length > 16000) {
@@ -19,24 +19,24 @@ struct Impl {
         return false;
     }
 
-    static bool setCompressed(uWS::WebSocketState<true> *wState, void *s) {
+    static bool setCompressed(fWS::WebSocketState<true> *wState, void *s) {
         /* We support it */
         return true;
     }
 
-    static void forceClose(uWS::WebSocketState<true> *wState, void *s, std::string_view reason = {}) {
+    static void forceClose(fWS::WebSocketState<true> *wState, void *s, std::string_view reason = {}) {
 
     }
 
-    static bool handleFragment(char *data, size_t length, unsigned int remainingBytes, int opCode, bool fin, uWS::WebSocketState<true> *webSocketState, void *s) {
+    static bool handleFragment(char *data, size_t length, unsigned int remainingBytes, int opCode, bool fin, fWS::WebSocketState<true> *webSocketState, void *s) {
 
-        if (opCode == uWS::TEXT) {
-            if (!uWS::protocol::isValidUtf8((unsigned char *)data, length)) {
+        if (opCode == fWS::TEXT) {
+            if (!fWS::protocol::isValidUtf8((unsigned char *)data, length)) {
                 /* Return break */
                 return true;
             }
-        } else if (opCode == uWS::CLOSE) {
-            uWS::protocol::parseClosePayload((char *)data, length);
+        } else if (opCode == fWS::CLOSE) {
+            fWS::protocol::parseClosePayload((char *)data, length);
         }
 
         messages += 1;
@@ -76,7 +76,7 @@ int main() {
     init_medium_message(1024);
 
     /* Create the parser state */
-    uWS::WebSocketState<true> state;
+    fWS::WebSocketState<true> state;
 
     unsigned char pre[32];
     unsigned char web_socket_request_text_small[26] = {130, 128 | 20, 1, 2, 3, 4};
@@ -98,7 +98,7 @@ int main() {
             web_socket_request_text[7] = 4;
 
             // here we can either consume the whole message or consume the whole message minus 1 byte, causing a different path to be taken
-            uWS::WebSocketProtocol<true, Impl>::consume((char *) web_socket_request_text, web_socket_request_text_size-1, &state, nullptr);
+            fWS::WebSocketProtocol<true, Impl>::consume((char *) web_socket_request_text, web_socket_request_text_size-1, &state, nullptr);
         }
 
         clock_t stop = clock();
@@ -122,7 +122,7 @@ int main() {
             web_socket_request_text[7] = 4;
 
             // here we can either consume the whole message or consume the whole message minus 1 byte, causing a different path to be taken
-            uWS::WebSocketProtocol<true, Impl>::consume((char *) web_socket_request_text, web_socket_request_text_size, &state, nullptr);
+            fWS::WebSocketProtocol<true, Impl>::consume((char *) web_socket_request_text, web_socket_request_text_size, &state, nullptr);
         }
 
         clock_t stop = clock();

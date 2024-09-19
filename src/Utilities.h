@@ -22,7 +22,7 @@
 
 #include <cstdint>
 
-namespace uWS {
+namespace fWS {
 namespace utils {
 
 inline int u32toaHex(uint32_t value, char *dst) {

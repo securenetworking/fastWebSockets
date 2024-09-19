@@ -7,14 +7,14 @@
 unsigned int roundRobin = 0;
 unsigned int hardwareConcurrency = std::thread::hardware_concurrency();
 std::vector<std::thread *> threads(hardwareConcurrency);
-std::vector<uWS::SSLApp *> apps;
+std::vector<fWS::SSLApp *> apps;
 std::mutex m;
 
-namespace uWS {
+namespace fWS {
 struct LocalCluster {
 
     //std::vector<std::thread *> threads = std::thread::hardware_concurrency();
-    //std::vector<uWS::SSLApp *> apps;
+    //std::vector<fWS::SSLApp *> apps;
     //std::mutex m;
 
 
@@ -22,15 +22,15 @@ struct LocalCluster {
         static std::atomic<unsigned int> roundRobin = 0; // atomic fetch_add
     }
 
-    LocalCluster(SocketContextOptions options = {}, std::function<void(uWS::SSLApp &)> cb = nullptr) {
+    LocalCluster(SocketContextOptions options = {}, std::function<void(fWS::SSLApp &)> cb = nullptr) {
         std::transform(threads.begin(), threads.end(), threads.begin(), [options, &cb](std::thread *) {
 
             return new std::thread([options, &cb]() {
 
                 // lock this
                 m.lock();
-                apps.emplace_back(new uWS::SSLApp(options));
-                uWS::SSLApp *app = apps.back();
+                apps.emplace_back(new fWS::SSLApp(options));
+                fWS::SSLApp *app = apps.back();
 
                 cb(*app);
                 

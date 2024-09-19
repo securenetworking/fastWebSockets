@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-    uWS::ClientApp app({
+    fWS::ClientApp app({
         .open = [](/*auto *ws*/) {
             std::cout << "Hello and welcome to client" << std::endl;
         },

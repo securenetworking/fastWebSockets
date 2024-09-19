@@ -60,7 +60,7 @@ int main() {
         return header;
     });
 
-    uWS::BloomFilter bf;
+    fWS::BloomFilter bf;
     unsigned int totalCollisions = 0;
 
     /* One on one */

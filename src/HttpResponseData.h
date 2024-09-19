@@ -26,7 +26,7 @@
 
 #include "MoveOnlyFunction.h"
 
-namespace uWS {
+namespace fWS {
 
 template <bool SSL>
 struct HttpResponseData : AsyncSocketData<SSL>, HttpParser {

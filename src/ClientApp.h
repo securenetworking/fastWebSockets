@@ -2,7 +2,7 @@
 #include "WebSocketContext.h"
 #include <string>
 
-namespace uWS {
+namespace fWS {
 
     struct WebSocketClientBehavior {
         MoveOnlyFunction<void()> open;

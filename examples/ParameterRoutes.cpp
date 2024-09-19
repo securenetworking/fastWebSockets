@@ -1,10 +1,10 @@
 #include "App.h"
 
-/* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
+/* Note that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support */
 
 int main() {
 	/* Overly simple hello world app */
-	uWS::SSLApp({
+	fWS::SSLApp({
 	  .key_file_name = "misc/key.pem",
 	  .cert_file_name = "misc/cert.pem",
 	  .passphrase = "1234"

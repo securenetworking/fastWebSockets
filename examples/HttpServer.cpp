@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     };
 
     int port = 3000;
-    uWS::SocketContextOptions ssl_options = {};
+    fWS::SocketContextOptions ssl_options = {};
 
     while ((option = optparse_long(&options, longopts, nullptr)) != -1) {
         switch (option) {
@@ -63,10 +63,10 @@ int main(int argc, char **argv) {
     AsyncFileStreamer asyncFileStreamer(root);
 
     /* Either serve over HTTP or HTTPS */
-    uWS::SocketContextOptions empty_ssl_options = {};
+    fWS::SocketContextOptions empty_ssl_options = {};
     if (memcmp(&ssl_options, &empty_ssl_options, sizeof(empty_ssl_options))) {
         /* HTTPS */
-        uWS::SSLApp(ssl_options).get("/*", [&asyncFileStreamer](auto *res, auto *req) {
+        fWS::SSLApp(ssl_options).get("/*", [&asyncFileStreamer](auto *res, auto *req) {
             serveFile(res, req);
             asyncFileStreamer.streamFile(res, req->getUrl());
         }).listen(port, [port, root](auto *token) {
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
         }).run();
     } else {
         /* HTTP */
-        uWS::App().get("/*", [&asyncFileStreamer](auto *res, auto *req) {
+        fWS::App().get("/*", [&asyncFileStreamer](auto *res, auto *req) {
             serveFile(res, req);
             asyncFileStreamer.streamFile(res, req->getUrl());
         }).listen(port, [port, root](auto *token) {

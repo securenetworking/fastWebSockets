@@ -13,11 +13,11 @@
 void testCorrectness() {
     std::cout << "TestCorrectness" << std::endl;
 
-    uWS::TopicTree<std::string, std::string_view> *topicTree;
+    fWS::TopicTree<std::string, std::string_view> *topicTree;
     std::map<void *, std::string> expectedResult;
     std::map<void *, std::string> actualResult;
 
-    topicTree = new uWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](uWS::Subscriber *s, std::string &message, auto flags) {
+    topicTree = new fWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](fWS::Subscriber *s, std::string &message, auto flags) {
 
         actualResult[s] += message;
 
@@ -25,12 +25,12 @@ void testCorrectness() {
         return false;
     });
 
-    uWS::Subscriber *s1 = topicTree->createSubscriber();
-    uWS::Subscriber *s2 = topicTree->createSubscriber();
+    fWS::Subscriber *s1 = topicTree->createSubscriber();
+    fWS::Subscriber *s2 = topicTree->createSubscriber();
 
     /* Make sure s1 < s2 (for debugging) */
     if (s2 < s1) {
-        uWS::Subscriber *tmp = s1;
+        fWS::Subscriber *tmp = s1;
         s1 = s2;
         s2 = tmp;
     }
@@ -88,11 +88,11 @@ void testCorrectness() {
 void testBugReport() {
     std::cout << "TestBugReport" << std::endl;
 
-    uWS::TopicTree<std::string, std::string_view> *topicTree;
+    fWS::TopicTree<std::string, std::string_view> *topicTree;
     std::map<void *, std::string> expectedResult;
     std::map<void *, std::string> actualResult;
 
-    topicTree = new uWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](uWS::Subscriber *s, std::string &message, auto flags) {
+    topicTree = new fWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](fWS::Subscriber *s, std::string &message, auto flags) {
 
         actualResult[s] += message;
 
@@ -100,12 +100,12 @@ void testBugReport() {
         return false;
     });
 
-    uWS::Subscriber *s1 = topicTree->createSubscriber();
-    uWS::Subscriber *s2 = topicTree->createSubscriber();
+    fWS::Subscriber *s1 = topicTree->createSubscriber();
+    fWS::Subscriber *s2 = topicTree->createSubscriber();
 
     /* Make sure s1 < s2 (for debugging) */
     if (s2 < s1) {
-        uWS::Subscriber *tmp = s1;
+        fWS::Subscriber *tmp = s1;
         s1 = s2;
         s2 = tmp;
     }
@@ -149,11 +149,11 @@ void testBugReport() {
 void testReorderingv19() {
     std::cout << "TestReorderingv19" << std::endl;
 
-    uWS::TopicTree<std::string, std::string_view> *topicTree;
+    fWS::TopicTree<std::string, std::string_view> *topicTree;
     std::map<void *, std::string> expectedResult;
     std::map<void *, std::string> actualResult;
 
-    topicTree = new uWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](uWS::Subscriber *s, std::string &message, auto flags) {
+    topicTree = new fWS::TopicTree<std::string, std::string_view>([&topicTree, &actualResult](fWS::Subscriber *s, std::string &message, auto flags) {
 
         actualResult[s] += message;
 
@@ -161,7 +161,7 @@ void testReorderingv19() {
         return false;
     });
 
-    uWS::Subscriber *s1 = topicTree->createSubscriber();
+    fWS::Subscriber *s1 = topicTree->createSubscriber();
 
     /* Subscribe to 100 topics */
     for (int i = 0; i < 100; i++) {

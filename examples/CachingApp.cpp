@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    uWS::App app;
+    fWS::App app;
 
     /* Regular, non-cached response */
     app.get("/not-cached", [](auto *res, auto */*req*/) {

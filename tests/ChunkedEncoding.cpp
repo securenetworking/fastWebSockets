@@ -10,13 +10,13 @@
 void consumeChunkEncoding(int maxConsume, std::string_view &chunkEncoded, uint64_t &state) {
     //int maxConsume = 200;
 
-    if (uWS::isParsingChunkedEncoding(state)) {
+    if (fWS::isParsingChunkedEncoding(state)) {
         std::cout << "already in chunked parsing state!" << std::endl;
         std::abort();
     }
 
     // this should not break the parser
-    state = uWS::STATE_IS_CHUNKED;
+    state = fWS::STATE_IS_CHUNKED;
 
     while (chunkEncoded.length()) {
 
@@ -24,7 +24,7 @@ void consumeChunkEncoding(int maxConsume, std::string_view &chunkEncoded, uint64
         std::string_view data = chunkEncoded.substr(0, std::min<size_t>(maxConsume, chunkEncoded.length()));
         unsigned int data_length_before_parsing = data.length();
 
-        for (auto chunk : uWS::ChunkIterator(&data, &state, true)) {
+        for (auto chunk : fWS::ChunkIterator(&data, &state, true)) {
         }
 
         /* Only remove that which was consumed */
@@ -39,7 +39,7 @@ void consumeChunkEncoding(int maxConsume, std::string_view &chunkEncoded, uint64
             }
 
             // should be fine
-            state = uWS::STATE_IS_CHUNKED;
+            state = fWS::STATE_IS_CHUNKED;
 
             //std::cout << "remaining chunk:" << chunkEncoded.length() << std::endl;
             //std::abort();
@@ -47,7 +47,7 @@ void consumeChunkEncoding(int maxConsume, std::string_view &chunkEncoded, uint64
         }
 
         /* Here we must be in parsingchunked state */
-        if (!uWS::isParsingChunkedEncoding(state)) {
+        if (!fWS::isParsingChunkedEncoding(state)) {
             std::cout << "not in parsing chunked strate!" << std::endl;
             std::abort();
         }
@@ -82,7 +82,7 @@ void runBetterTest(unsigned int maxConsume) {
 
     uint64_t state = 0;
 
-    if (uWS::isParsingChunkedEncoding(state)) {
+    if (fWS::isParsingChunkedEncoding(state)) {
         std::abort();
     }
     consumeChunkEncoding(maxConsume, chunkEncoded, state);
@@ -137,7 +137,7 @@ void runTest(unsigned int maxConsume) {
     // consumeChunkEncoding(chunkEncoded)
     // assume state == 0 and we have no bytes to consume
 
-    // this while should be more like if original size or "is parsing chunked" (which tests the uWS::wantsChunkedParsing(state))
+    // this while should be more like if original size or "is parsing chunked" (which tests the fWS::wantsChunkedParsing(state))
     while (chunkEncoded.length()) {
         /* Parse a small part of the given data */
         std::string_view data = chunkEncoded.substr(0, std::min<size_t>(maxConsume, chunkEncoded.length()));
@@ -148,7 +148,7 @@ void runTest(unsigned int maxConsume) {
 
         /* Whatever chunk we emit, or part of chunk, it must match the expected one */
         //std::cout << "Calling parser now" << std::endl;
-        for (auto chunk : uWS::ChunkIterator(&data, &state, true)) {
+        for (auto chunk : fWS::ChunkIterator(&data, &state, true)) {
             std::cout << "<" << chunk << ">" << std::endl;
 
             /* Run check here */
@@ -200,9 +200,9 @@ void testWithoutTrailer() {
     std::string buffer = ss.str();
     std::string_view dataToConsume(buffer.data(), buffer.length());
 
-    uint64_t state = uWS::STATE_IS_CHUNKED;
+    uint64_t state = fWS::STATE_IS_CHUNKED;
 
-    for (auto chunk : uWS::ChunkIterator(&dataToConsume, &state)) {
+    for (auto chunk : fWS::ChunkIterator(&dataToConsume, &state)) {
 
     }
 

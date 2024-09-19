@@ -11,7 +11,7 @@
 void testNegotiation(bool wantCompression, int wantedCompressionWindow, int wantedInflationWindow, std::string_view offer,
                     bool negCompression, int negCompressionWindow, int negInflationWindow, std::string_view negResponse) {
 
-    auto [compression, compressionWindow, inflationWindow, response] = uWS::negotiateCompression(wantCompression, wantedCompressionWindow, wantedInflationWindow, offer);
+    auto [compression, compressionWindow, inflationWindow, response] = fWS::negotiateCompression(wantCompression, wantedCompressionWindow, wantedInflationWindow, offer);
 
     if (compression == negCompression && compressionWindow == negCompressionWindow && inflationWindow == negInflationWindow && response == negResponse) {
         std::cout << "PASS" << std::endl;

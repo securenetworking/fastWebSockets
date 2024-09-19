@@ -15,9 +15,9 @@ int main() {
         return new std::thread([]() {
 
             /* Very simple WebSocket echo server */
-            uWS::App().ws<PerSocketData>("/*", {
+            fWS::App().ws<PerSocketData>("/*", {
                 /* Settings */
-                .compression = uWS::SHARED_COMPRESSOR,
+                .compression = fWS::SHARED_COMPRESSOR,
                 .maxPayloadLength = 16 * 1024,
                 .idleTimeout = 10,
                 .maxBackpressure = 1 * 1024 * 1024,
@@ -26,7 +26,7 @@ int main() {
                 .open = [](auto */*ws*/) {
 
                 },
-                .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+                .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
                     ws->send(message, opCode);
                 },
                 .drain = [](auto */*ws*/) {

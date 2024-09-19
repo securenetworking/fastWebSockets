@@ -20,7 +20,7 @@
 
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
 /* Possible errors from http parsing */
 enum HttpError {
     HTTP_ERROR_505_HTTP_VERSION_NOT_SUPPORTED = 1,

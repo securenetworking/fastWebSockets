@@ -23,7 +23,7 @@
 #include "WebSocketData.h"
 #include "WebSocket.h"
 
-namespace uWS {
+namespace fWS {
 
 template <bool SSL, bool isServer, typename USERDATA>
 struct WebSocketContext {

@@ -33,7 +33,7 @@
 #include <string_view>
 #include <tuple>
 
-namespace uWS {
+namespace fWS {
 
 enum ExtensionTokens {
     /* Standard permessage-deflate tokens */

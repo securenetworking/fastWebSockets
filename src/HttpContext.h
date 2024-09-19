@@ -30,7 +30,7 @@
 #include <iostream>
 #include "MoveOnlyFunction.h"
 
-namespace uWS {
+namespace fWS {
 template<bool> struct HttpResponse;
 
 template <bool SSL>

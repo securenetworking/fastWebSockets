@@ -10,9 +10,9 @@ int main() {
     void *user = nullptr;
     void *reserved = nullptr;
 
-    uWS::HttpParser httpParser;
+    fWS::HttpParser httpParser;
 
-    auto [err, returnedUser] = httpParser.consumePostPadded((char *) data, size, user, reserved, [reserved](void *s, uWS::HttpRequest *httpRequest) -> void * {
+    auto [err, returnedUser] = httpParser.consumePostPadded((char *) data, size, user, reserved, [reserved](void *s, fWS::HttpRequest *httpRequest) -> void * {
 
         std::cout << httpRequest->getMethod() << std::endl;
 

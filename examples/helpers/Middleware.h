@@ -8,8 +8,8 @@ inline bool hasExt(std::string_view file, std::string_view ext) {
 
 /* This should be a filter / middleware like app.use(handler) */
 template <bool SSL>
-uWS::HttpResponse<SSL> *serveFile(uWS::HttpResponse<SSL> *res, uWS::HttpRequest *req) {
-    res->writeStatus(uWS::HTTP_200_OK);
+fWS::HttpResponse<SSL> *serveFile(fWS::HttpResponse<SSL> *res, fWS::HttpRequest *req) {
+    res->writeStatus(fWS::HTTP_200_OK);
 
     if (hasExt(req->getUrl(), ".svg")) {
         res->writeHeader("Content-Type", "image/svg+xml");

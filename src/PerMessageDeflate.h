@@ -24,7 +24,7 @@
 #include <cstring>
 
 /* We always define these options no matter if ZLIB is enabled or not */
-namespace uWS {
+namespace fWS {
     /* Compressor mode is 8 lowest bits where HIGH4(windowBits), LOW4(memLevel).
      * Decompressor mode is 8 highest bits LOW4(windowBits).
      * If compressor or decompressor bits are 1, then they are shared.
@@ -74,7 +74,7 @@ namespace uWS {
 #include <cstring>
 #endif
 
-namespace uWS {
+namespace fWS {
 
 /* Do not compile this module if we don't want it */
 #if defined(UWS_NO_ZLIB) || defined(UWS_MOCK_ZLIB)

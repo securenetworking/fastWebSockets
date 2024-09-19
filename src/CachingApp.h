@@ -7,7 +7,7 @@
 #include <functional>
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
 
 struct StringViewHash {
     size_t operator()(std::string_view sv) const {
@@ -25,7 +25,7 @@ struct StringViewEqual {
 
 class CachingHttpResponse {
 public:
-    CachingHttpResponse(uWS::HttpResponse<false> *res)
+    CachingHttpResponse(fWS::HttpResponse<false> *res)
         : res(res) {}
 
     void write(std::string_view data) {
@@ -42,7 +42,7 @@ public:
     }
 
 public:
-    uWS::HttpResponse<false>* res; // should be a vector of waiting sockets
+    fWS::HttpResponse<false>* res; // should be a vector of waiting sockets
 
 
     std::string buffer; // body
@@ -55,14 +55,14 @@ typedef std::unordered_map<std::string_view, CachingHttpResponse *,
 
 // we can also derive from H3app later on
 template <bool SSL>
-struct CachingApp : public uWS::TemplatedApp<SSL, CachingApp<SSL>> {
+struct CachingApp : public fWS::TemplatedApp<SSL, CachingApp<SSL>> {
 public:
-    CachingApp(SocketContextOptions options = {}) : uWS::TemplatedApp<SSL, CachingApp<SSL>>(options) {}
+    CachingApp(SocketContextOptions options = {}) : fWS::TemplatedApp<SSL, CachingApp<SSL>>(options) {}
 
-    using uWS::TemplatedApp<SSL, CachingApp<SSL>>::get;
+    using fWS::TemplatedApp<SSL, CachingApp<SSL>>::get;
 
     CachingApp(const CachingApp &other) = delete;
-    CachingApp(CachingApp<SSL> &&other) : uWS::TemplatedApp<SSL, CachingApp<SSL>>(std::move(other)) {
+    CachingApp(CachingApp<SSL> &&other) : fWS::TemplatedApp<SSL, CachingApp<SSL>>(std::move(other)) {
         // also move the cache
     }
 
@@ -71,11 +71,11 @@ public:
     }
 
     // variant 1: only taking URL into account
-    CachingApp &&get(const std::string& url, uWS::MoveOnlyFunction<void(CachingHttpResponse*, uWS::HttpRequest*)> &&handler, unsigned int secondsToExpiry) {
-        ((uWS::TemplatedApp<SSL, CachingApp<SSL>> *)this)->get(url, [this, handler = std::move(handler), secondsToExpiry](auto* res, auto* req) mutable {
+    CachingApp &&get(const std::string& url, fWS::MoveOnlyFunction<void(CachingHttpResponse*, fWS::HttpRequest*)> &&handler, unsigned int secondsToExpiry) {
+        ((fWS::TemplatedApp<SSL, CachingApp<SSL>> *)this)->get(url, [this, handler = std::move(handler), secondsToExpiry](auto* res, auto* req) mutable {
             /* We need to know the cache key and the time of now */
             std::string_view cache_key = req->getFullUrl();
-            time_t now = static_cast<LoopData *>(us_loop_ext((us_loop_t *)uWS::Loop::get()))->cacheTimepoint;
+            time_t now = static_cast<LoopData *>(us_loop_ext((us_loop_t *)fWS::Loop::get()))->cacheTimepoint;
 
             auto it = cache.find(cache_key);
             if (it != cache.end()) {

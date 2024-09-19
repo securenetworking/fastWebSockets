@@ -6,7 +6,7 @@ extern "C" {
 #include "Http3ContextData.h"
 #include "Http3ResponseData.h"
 
-namespace uWS {
+namespace fWS {
     struct Http3Context {
         static Http3Context *create(us_loop_t *loop, us_quic_socket_context_options_t options) {
 

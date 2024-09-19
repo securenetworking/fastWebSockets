@@ -16,15 +16,15 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     /* First byte determines what compressor to use */
     if (size >= 1) {
 
-        uWS::CompressOptions compressors[] = {
-            uWS::DEDICATED_COMPRESSOR_3KB,
-            uWS::DEDICATED_COMPRESSOR_4KB,
-            uWS::DEDICATED_COMPRESSOR_8KB,
-            uWS::DEDICATED_COMPRESSOR_16KB,
-            uWS::DEDICATED_COMPRESSOR_32KB,
-            uWS::DEDICATED_COMPRESSOR_64KB,
-            uWS::DEDICATED_COMPRESSOR_128KB,
-            uWS::DEDICATED_COMPRESSOR_256KB
+        fWS::CompressOptions compressors[] = {
+            fWS::DEDICATED_COMPRESSOR_3KB,
+            fWS::DEDICATED_COMPRESSOR_4KB,
+            fWS::DEDICATED_COMPRESSOR_8KB,
+            fWS::DEDICATED_COMPRESSOR_16KB,
+            fWS::DEDICATED_COMPRESSOR_32KB,
+            fWS::DEDICATED_COMPRESSOR_64KB,
+            fWS::DEDICATED_COMPRESSOR_128KB,
+            fWS::DEDICATED_COMPRESSOR_256KB
         };
 
         auto compressor = compressors[data[0] % 8];
@@ -37,9 +37,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         /* If we could specify LARGE_BUFFER_SIZE small here we could force it to inflate in chunks,
         * triggering more line coverage. Currently it is set to 16kb which is always too much */
         struct StaticData {
-            uWS::DeflationStream deflationStream;
-            uWS::InflationStream inflationStream;
-            uWS::ZlibContext zlibContext;
+            fWS::DeflationStream deflationStream;
+            fWS::InflationStream inflationStream;
+            fWS::ZlibContext zlibContext;
         } staticData = {compressor, compressor};
 
         /* Why is this padded? */

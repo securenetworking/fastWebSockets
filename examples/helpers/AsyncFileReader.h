@@ -21,7 +21,7 @@ private:
     int fileSize;
     std::string fileName;
     std::ifstream fin;
-    uWS::Loop *loop;
+    fWS::Loop *loop;
 
 public:
     /* Construct a demo async. file reader for fileName */
@@ -45,7 +45,7 @@ public:
 
         // get loop for thread
 
-        loop = uWS::Loop::get();
+        loop = fWS::Loop::get();
     }
 
     /* Returns any data already cached for this offset */

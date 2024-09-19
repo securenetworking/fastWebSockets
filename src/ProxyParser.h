@@ -22,7 +22,7 @@
 
 #ifdef UWS_WITH_PROXY
 
-namespace uWS {
+namespace fWS {
 
 struct proxy_hdr_v2 {
     uint8_t sig[12];  /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */

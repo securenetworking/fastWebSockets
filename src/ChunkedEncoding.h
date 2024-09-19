@@ -27,7 +27,7 @@
 #include "MoveOnlyFunction.h"
 #include <optional>
 
-namespace uWS {
+namespace fWS {
 
     constexpr uint64_t STATE_HAS_SIZE = 1ull << (sizeof(uint64_t) * 8 - 1);//0x80000000;
     constexpr uint64_t STATE_IS_CHUNKED = 1ull << (sizeof(uint64_t) * 8 - 2);//0x40000000;
@@ -199,7 +199,7 @@ namespace uWS {
         bool trailer;
 
         ChunkIterator(std::string_view *data, uint64_t *state, bool trailer = false) : data(data), state(state), trailer(trailer) {
-            chunk = uWS::getNextChunk(*data, *state, trailer);
+            chunk = fWS::getNextChunk(*data, *state, trailer);
         }
 
         ChunkIterator() {
@@ -226,7 +226,7 @@ namespace uWS {
         }
 
         ChunkIterator &operator++() {
-            chunk = uWS::getNextChunk(*data, *state, trailer);
+            chunk = fWS::getNextChunk(*data, *state, trailer);
             return *this;
         }
 

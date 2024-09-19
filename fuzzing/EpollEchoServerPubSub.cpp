@@ -17,9 +17,9 @@ void test() {
         int nr = 0;
     };
 
-    /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-     * You may swap to using uWS:App() if you don't need SSL */
-    uWS::SSLApp *app = new uWS::SSLApp({
+    /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+     * You may swap to using fWS:App() if you don't need SSL */
+    fWS::SSLApp *app = new fWS::SSLApp({
         /* There are example certificates in fastWebSockets.js repo */
 	    .key_file_name = "../misc/key.pem",
 	    .cert_file_name = "../misc/cert.pem",
@@ -28,7 +28,7 @@ void test() {
     
     app->ws<PerSocketData>("/*", {
         /* Settings */
-        .compression = uWS::DISABLED,
+        .compression = fWS::DISABLED,
         .maxPayloadLength = 512, // also have a low value here for fuzzing
         .idleTimeout = 60,
         .maxBackpressure = 128, // we want a low number so that we can reach this in fuzzing
@@ -48,7 +48,7 @@ void test() {
                 ws->subscribe(topic);
             }
         },
-        .message = [&app](auto *ws, std::string_view message, uWS::OpCode opCode) {
+        .message = [&app](auto *ws, std::string_view message, fWS::OpCode opCode) {
             PerSocketData *perSocketData = (PerSocketData *) ws->getUserData();
 
             app->publish(perSocketData->topics[++perSocketData->nr % 100], message, opCode);
@@ -77,7 +77,7 @@ void test() {
 
     delete app;
 
-    uWS::Loop::get()->free();
+    fWS::Loop::get()->free();
 }
 
 /* Thus function should shutdown the event-loop and let the test fall through */

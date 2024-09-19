@@ -22,7 +22,7 @@
 
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
 
     /* Takes raw query including initial '?' sign. Will inplace decode, so input will mutate */
     static inline std::string_view getDecodedQueryValue(std::string_view key, std::string_view rawQuery) {

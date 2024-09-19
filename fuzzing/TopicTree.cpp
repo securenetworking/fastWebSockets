@@ -11,7 +11,7 @@
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     /* Create topic tree */
-    uWS::TopicTree<std::string, std::string_view> topicTree([](uWS::Subscriber *s, std::string &message, auto flags) {
+    fWS::TopicTree<std::string, std::string_view> topicTree([](fWS::Subscriber *s, std::string &message, auto flags) {
 
         /* Depending on what publishing we do below (with or without empty strings),
          * this assumption can hold true or not. For now it should hold true */
@@ -29,7 +29,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     });
 
     /* Holder for all manually allocated subscribers */
-    std::map<uint32_t, uWS::Subscriber *> subscribers;
+    std::map<uint32_t, fWS::Subscriber *> subscribers;
 
     /* Iterate the padded fuzz as chunks */
     makeChunked(makePadded(data, size), size, [&topicTree, &subscribers](const uint8_t *data, size_t size) {
@@ -61,12 +61,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                         return;
                     }
 
-                    uWS::Subscriber *subscriber = topicTree.createSubscriber();
+                    fWS::Subscriber *subscriber = topicTree.createSubscriber();
                     subscribers[id] = subscriber;
                     topicTree.subscribe(subscriber, lastString);
                 } else {
                     /* Limit per subscriber subscriptions (OOM) */
-                    uWS::Subscriber *subscriber = subscribers[id];
+                    fWS::Subscriber *subscriber = subscribers[id];
                     if (subscriber->topics.size() < 50) {
                         topicTree.subscribe(subscriber, lastString);
                     }

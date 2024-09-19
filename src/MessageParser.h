@@ -27,7 +27,7 @@
 /* For now we have this one here */
 #define MAX_HEADERS 10
 
-namespace uWS {
+namespace fWS {
 
     // should be templated on whether it needs at lest one header (http), or not (multipart)
     static inline unsigned int getHeaders(char *postPaddedBuffer, char *end, std::pair<std::string_view, std::string_view> *headers) {

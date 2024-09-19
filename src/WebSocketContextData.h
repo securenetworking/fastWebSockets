@@ -29,7 +29,7 @@
 #include "TopicTree.h"
 #include "WebSocketData.h"
 
-namespace uWS {
+namespace fWS {
 
 /* Type queued up when publishing */
 struct TopicTreeMessage {

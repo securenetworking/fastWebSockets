@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace uWS {
+namespace fWS {
 
 struct WebSocketHandshake {
     template <int N, typename T>

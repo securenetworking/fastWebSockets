@@ -32,7 +32,7 @@
 #include "LoopData.h"
 #include "AsyncSocketData.h"
 
-namespace uWS {
+namespace fWS {
 
     enum SendBufferAttribute {
         NEEDS_NOTHING,

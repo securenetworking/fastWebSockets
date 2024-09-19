@@ -35,7 +35,7 @@
 
 /* todo: tryWrite is missing currently, only send smaller segments with write */
 
-namespace uWS {
+namespace fWS {
 
 /* Some pre-defined status constants to use with writeStatus */
 static const char *HTTP_200_OK = "200 OK";

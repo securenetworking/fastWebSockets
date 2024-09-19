@@ -9,7 +9,7 @@
 /* curl --data-binary @video.mp4 http://localhost:3000 */
 /* crc32 video.mp4 */
 
-/* Note that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support */
+/* Note that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support */
 
 #include <sstream>
 #include <cstdint>
@@ -32,7 +32,7 @@ uint32_t crc32(const char *s, size_t n, uint32_t crc = 0xFFFFFFFF) {
 
 int main() {
 
-	uWS::SSLApp({
+	fWS::SSLApp({
 	  .key_file_name = "misc/key.pem",
 	  .cert_file_name = "misc/cert.pem",
 	  .passphrase = "1234"

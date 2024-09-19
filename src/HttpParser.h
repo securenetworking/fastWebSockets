@@ -36,7 +36,7 @@
 #include "QueryParser.h"
 #include "HttpErrors.h"
 
-namespace uWS {
+namespace fWS {
 
 /* We require at least this much post padding */
 static const unsigned int MINIMUM_HTTP_POST_PADDING = 32;
@@ -545,7 +545,7 @@ private:
                 if (!CONSUME_MINIMALLY) {
                     /* Go ahead and parse it (todo: better heuristics for emitting FIN to the app level) */
                     std::string_view dataToConsume(data, length);
-                    for (auto chunk : uWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
+                    for (auto chunk : fWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
                         dataHandler(user, chunk, chunk.length() == 0);
                     }
                     if (isParsingInvalidChunkedEncoding(remainingStreamingBytes)) {
@@ -601,7 +601,7 @@ public:
             /* It's either chunked or with a content-length */
             if (isParsingChunkedEncoding(remainingStreamingBytes)) {
                 std::string_view dataToConsume(data, length);
-                for (auto chunk : uWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
+                for (auto chunk : fWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
                     dataHandler(user, chunk, chunk.length() == 0);
                 }
                 if (isParsingInvalidChunkedEncoding(remainingStreamingBytes)) {
@@ -658,7 +658,7 @@ public:
                     /* It's either chunked or with a content-length */
                     if (isParsingChunkedEncoding(remainingStreamingBytes)) {
                         std::string_view dataToConsume(data, length);
-                        for (auto chunk : uWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
+                        for (auto chunk : fWS::ChunkIterator(&dataToConsume, &remainingStreamingBytes)) {
                             dataHandler(user, chunk, chunk.length() == 0);
                         }
                         if (isParsingInvalidChunkedEncoding(remainingStreamingBytes)) {

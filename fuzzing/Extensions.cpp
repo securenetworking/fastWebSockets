@@ -13,7 +13,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     /* This one must not return shared compressor, or above 13 */
     {
-        auto [negCompression, negCompressionWindow, negInflationWindow, response] = uWS::negotiateCompression(true, 13, 0, std::string_view((char *) data, size));
+        auto [negCompression, negCompressionWindow, negInflationWindow, response] = fWS::negotiateCompression(true, 13, 0, std::string_view((char *) data, size));
 
         if (negCompression) {
             /* If we want dedicated compression, we must not end up here! */
@@ -28,7 +28,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     /* This one must not return anything over 0 (only shared) */
     {
-        auto [negCompression, negCompressionWindow, negInflationWindow, response] = uWS::negotiateCompression(true, 0, 0, std::string_view((char *) data, size));
+        auto [negCompression, negCompressionWindow, negInflationWindow, response] = fWS::negotiateCompression(true, 0, 0, std::string_view((char *) data, size));
 
         if (negCompression) {
             /* If we want shared compression, we must not end up here! */
@@ -39,7 +39,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     /* Whatever, this one must not negotiate anything */
     {
-        auto [negCompression, negCompressionWindow, negInflationWindow, response] = uWS::negotiateCompression(false, 13, 15, std::string_view((char *) data, size));
+        auto [negCompression, negCompressionWindow, negInflationWindow, response] = fWS::negotiateCompression(false, 13, 15, std::string_view((char *) data, size));
 
         if (negCompression) {
             free((void *) -1);

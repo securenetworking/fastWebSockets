@@ -23,7 +23,7 @@
 #include <vector>
 #include "MoveOnlyFunction.h"
 
-namespace uWS {
+namespace fWS {
 template<bool> struct HttpResponse;
 struct HttpRequest;
 

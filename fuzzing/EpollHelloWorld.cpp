@@ -15,9 +15,9 @@ void test() {
     };
 
     {
-        /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-        * You may swap to using uWS:App() if you don't need SSL */
-        auto app = uWS::App({
+        /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+        * You may swap to using fWS:App() if you don't need SSL */
+        auto app = fWS::App({
             /* There are example certificates in fastWebSockets.js repo */
             .key_file_name = "../misc/key.pem",
             .cert_file_name = "../misc/cert.pem",
@@ -37,7 +37,7 @@ void test() {
         }).post("/*", [](auto *res, auto *req) {
             res->onAborted([]() {
                 /* We might as well use this opportunity to stress the loop a bit */
-                uWS::Loop::get()->defer([]() {
+                fWS::Loop::get()->defer([]() {
 
                 });
             });
@@ -63,7 +63,7 @@ void test() {
             res->end("done");
         }).ws<PerSocketData>("/*", {
             /* Settings */
-            .compression = uWS::SHARED_COMPRESSOR,
+            .compression = fWS::SHARED_COMPRESSOR,
             .maxPayloadLength = 16 * 1024,
             .idleTimeout = 12,
             .maxBackpressure = 1024,
@@ -74,7 +74,7 @@ void test() {
                 ws->getRemoteAddressAsText();
                 us_poll_ext((struct us_poll_t *) ws);
             },
-            .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+            .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
                 ws->send(message, opCode, true);
             },
             .drain = [](auto *ws) {
@@ -82,7 +82,7 @@ void test() {
             },
             .ping = [](auto *ws, std::string_view) {
                 /* We use this to trigger the async/wakeup feature */
-                uWS::Loop::get()->defer([]() {
+                fWS::Loop::get()->defer([]() {
                     /* Do nothing */
                 });
             },
@@ -97,7 +97,7 @@ void test() {
         });
 
         /* Here we want to stress the connect feature, since nothing else stresses it */
-        struct us_loop_t *loop = (struct us_loop_t *) uWS::Loop::get();
+        struct us_loop_t *loop = (struct us_loop_t *) fWS::Loop::get();
         /* This function is stupid */
         us_loop_iteration_number(loop);
         struct us_socket_context_t *client_context = us_create_socket_context(0, loop, 0, {});
@@ -151,8 +151,8 @@ void test() {
         /* After done we also free the client context */
         us_socket_context_free(0, client_context);
     }
-    uWS::Loop::get()->setSilent(true);
-    uWS::Loop::get()->free();
+    fWS::Loop::get()->setSilent(true);
+    fWS::Loop::get()->free();
 }
 
 /* Thus function should shutdown the event-loop and let the test fall through */

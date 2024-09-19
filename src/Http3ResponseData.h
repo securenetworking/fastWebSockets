@@ -5,7 +5,7 @@
 #include "AsyncSocketData.h"
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
     struct Http3ResponseData {
 
         MoveOnlyFunction<void()> onAborted = nullptr;

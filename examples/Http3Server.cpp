@@ -22,7 +22,7 @@ int main() {
 
 	/* We need a bootstrapping server that instructs
 	 * the web browser to use HTTP3 */
-	(*new uWS::SSLApp({
+	(*new fWS::SSLApp({
 	  .key_file_name = "misc/key.pem",
 	  .cert_file_name = "misc/cert.pem",
 	  .passphrase = "1234"
@@ -37,7 +37,7 @@ int main() {
 	});
 
 	/* And we serve the video over HTTP3 */
-	uWS::H3App({
+	fWS::H3App({
 	  .key_file_name = "misc/key.pem",
 	  .cert_file_name = "misc/cert.pem",
 	  .passphrase = "1234"

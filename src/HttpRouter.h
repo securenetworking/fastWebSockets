@@ -31,7 +31,7 @@
 
 #include "MoveOnlyFunction.h"
 
-namespace uWS {
+namespace fWS {
 
 template <class USERDATA>
 struct HttpRouter {

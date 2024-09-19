@@ -2,7 +2,7 @@ extern "C" {
 #include "quic.h"
 }
 
-namespace uWS {
+namespace fWS {
 
     struct Http3Request {
 

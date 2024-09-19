@@ -4,7 +4,7 @@
 #include "Http3Request.h"
 #include "Http3Context.h"
 
-namespace uWS {
+namespace fWS {
 
     struct H3App {
         Http3Context *http3Context;
@@ -134,7 +134,7 @@ namespace uWS {
         }
 
         void run() {
-            uWS::Loop::get()->run();
+            fWS::Loop::get()->run();
         }
     };
 }

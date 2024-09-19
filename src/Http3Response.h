@@ -4,7 +4,7 @@ extern "C" {
 
 #include "Http3ResponseData.h"
 
-namespace uWS {
+namespace fWS {
 
     /* Is a quic stream */
     struct Http3Response {

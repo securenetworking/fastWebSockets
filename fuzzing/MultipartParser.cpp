@@ -26,7 +26,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     std::string_view body((char *) mutableMemory + 1 + contentType.length(), size);
 
-    uWS::MultipartParser mp(contentType);
+    fWS::MultipartParser mp(contentType);
     if (mp.isValid()) {
         mp.setBody(body);
 
@@ -44,7 +44,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
                 /* We care about content-type and content-disposition */
                 if (headers[i].first == "content-disposition") {
                     /* Parse the parameters */
-                    uWS::ParameterParser pp(headers[i].second);
+                    fWS::ParameterParser pp(headers[i].second);
                     while (true) {
                         auto [key, value] = pp.getKeyValue();
                         if (!key.length()) {

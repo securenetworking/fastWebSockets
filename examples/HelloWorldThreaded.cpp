@@ -3,12 +3,12 @@
 
 int main() {
     /* Note that SSL is disabled unless you build with WITH_OPENSSL=1 */
-    uWS::LocalCluster({
+    fWS::LocalCluster({
         .key_file_name = "misc/key.pem",
         .cert_file_name = "misc/cert.pem",
         .passphrase = "1234"
     },
-    [](uWS::SSLApp &app) {
+    [](fWS::SSLApp &app) {
         /* Here this App instance is defined */
         app.get("/*", [](auto *res, auto * /*req*/) {
             res->end("Hello world!");

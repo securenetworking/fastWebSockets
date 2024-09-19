@@ -5,7 +5,7 @@
 
 void testMethodPriority() {
     std::cout << "TestMethodPriority" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
     std::string result;
 
     r.add({"*"}, "/static/route", [&result](auto *) {
@@ -48,7 +48,7 @@ void testMethodPriority() {
 
 void testDeepParameterRoutes() {
     std::cout << "TestDeepParameterRoutes" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
     std::string result;
 
     r.add({"GET"}, "/something/:id/sync", [&result](auto *h) {
@@ -76,7 +76,7 @@ void testDeepParameterRoutes() {
 
 void testPatternPriority() {
     std::cout << "TestPatternPriority" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
     std::string result;
 
     r.add({"*"}, "/a/b/c", [&result](auto *) {
@@ -125,7 +125,7 @@ void testPatternPriority() {
 
 void testUpgrade() {
     std::cout << "TestUpgrade" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
     std::string result;
 
     /* HTTP on / */
@@ -157,7 +157,7 @@ void testUpgrade() {
 void testBugReports() {
     std::cout << "TestBugReports" << std::endl;
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         r.add({"GET"}, "/foo//////bar/baz/qux", [&result](auto *) {
@@ -178,7 +178,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         r.add({"GET"}, "/test/*", [&result](auto *) {
@@ -191,7 +191,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         /* WS on /* */
@@ -216,7 +216,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         /* WS on / */
@@ -236,7 +236,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         /* WS on /* */
@@ -262,7 +262,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         /* WS on /* */
@@ -294,7 +294,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         r.add({"GET"}, "/foo", [&result](auto *) {
@@ -319,7 +319,7 @@ void testBugReports() {
     }
 
     {
-        uWS::HttpRouter<int> r;
+        fWS::HttpRouter<int> r;
         std::string result;
 
         r.add({"GET"}, "/*", [&result](auto *) {
@@ -342,7 +342,7 @@ void testBugReports() {
 
 void testParameters() {
     std::cout << "TestParameters" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
     std::string result;
 
     r.add({"GET"}, "/candy/:kind/*", [&result](auto *h) {
@@ -408,7 +408,7 @@ void testParameters() {
 
 void testPerformance() {
     std::cout << "TestPerformance" << std::endl;
-    uWS::HttpRouter<int> r;
+    fWS::HttpRouter<int> r;
 
     r.add({"GET"}, "/*", [](auto *h) {
         return true;

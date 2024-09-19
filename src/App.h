@@ -24,7 +24,7 @@
 #include <charconv>
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
     /* Safari 15.0 - 15.3 has a completely broken compression implementation (client_no_context_takeover not
      * properly implemented) - so we fully disable compression for this browser :-(
      * see https://github.com/uNetworking/uWebSockets/issues/1347 */
@@ -57,7 +57,7 @@ namespace uWS {
 #include "WebSocket.h"
 #include "PerMessageDeflate.h"
 
-namespace uWS {
+namespace fWS {
 
     /* This one matches us_socket_context_options_t but has default values */
     struct SocketContextOptions {
@@ -622,7 +622,7 @@ public:
     }
 
     BuilderPatternReturnType &&run() {
-        uWS::run();
+        fWS::run();
         return std::move(static_cast<BuilderPatternReturnType &&>(*this));
     }
 
@@ -636,9 +636,9 @@ public:
 
 #include "CachingApp.h"
 
-namespace uWS {
-    typedef uWS::CachingApp<false> App;
-    typedef uWS::CachingApp<true> SSLApp;
+namespace fWS {
+    typedef fWS::CachingApp<false> App;
+    typedef fWS::CachingApp<true> SSLApp;
 }
 
 #endif // UWS_APP_H

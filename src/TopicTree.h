@@ -31,7 +31,7 @@
 #include <set>
 #include <string>
 
-namespace uWS {
+namespace fWS {
 
 struct Subscriber;
 

@@ -31,7 +31,7 @@
 
 struct us_timer_t;
 
-namespace uWS {
+namespace fWS {
 
 struct Loop;
 

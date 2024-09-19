@@ -40,8 +40,8 @@ You can use the Makefile on Linux and macOS. It is simple to use and builds the 
 
 ## User manual
 
-### uWS::App & uWS::SSLApp
-You begin your journey by constructing an "App". Either an SSL-app or a regular TCP-only App. The uWS::SSLApp constructor takes a struct holding SSL options such as cert and key. Interfaces for both apps are identical, so let's call them both "App" from now on.
+### fWS::App & fWS::SSLApp
+You begin your journey by constructing an "App". Either an SSL-app or a regular TCP-only App. The fWS::SSLApp constructor takes a struct holding SSL options such as cert and key. Interfaces for both apps are identical, so let's call them both "App" from now on.
 
 Apps follow the builder pattern, member functions return the App so that you can chain calls.
 
@@ -51,14 +51,14 @@ You attach behavior to "URL routes". A lambda is paired with a "method" (Http me
 Methods are many, but most common are probably get & post. They all have the same signature, let's look at one example:
 
 ```c++
-uWS::App().get("/hello", [](auto *res, auto *req) {
+fWS::App().get("/hello", [](auto *res, auto *req) {
     res->end("Hello World!");
 });
 ```
 
-Important for all routes is that "req", the `uWS::HttpRequest *` dies with return. In other words, req is stack allocated so don't keep it in your pocket.
+Important for all routes is that "req", the `fWS::HttpRequest *` dies with return. In other words, req is stack allocated so don't keep it in your pocket.
 
-res, the `uWS::HttpResponse<SSL> *` will be alive and accessible until either its .onAborted callback emits, or you've responded to the request via res.end or res.tryEnd.
+res, the `fWS::HttpResponse<SSL> *` will be alive and accessible until either its .onAborted callback emits, or you've responded to the request via res.end or res.tryEnd.
 
 In other words, you either respond to the request immediately and return, or you attach lambdas to the res (which may hold captured data), and respond later on in some other async callback.
 
@@ -120,9 +120,9 @@ WebSocket "routes" are registered similarly, but not identically.
 Every websocket route has the same pattern and pattern matching as for Http, but instead of one single callback you have a whole set of them, here's an example:
 
 ```c++
-uWS::App().ws<PerSocketData>("/*", {
+fWS::App().ws<PerSocketData>("/*", {
     /* Settings */
-    .compression = uWS::SHARED_COMPRESSOR,
+    .compression = fWS::SHARED_COMPRESSOR,
     .maxPayloadLength = 16 * 1024,
     .idleTimeout = 10,
     /* Handlers */
@@ -133,7 +133,7 @@ uWS::App().ws<PerSocketData>("/*", {
     .open = [](auto *ws) {
 
     },
-    .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+    .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
         ws->send(message, opCode);
     },
     .drain = [](auto *ws) {
@@ -179,7 +179,7 @@ Sending on a WebSocket can build backpressure. WebSocket::send returns an enum o
 The library is single threaded. You cannot, absolutely not, mix threads. A socket created from an App on thread 1 cannot be used in any way from thread 2. The only function in the whole entire library which is thread-safe and can be used from any thread is Loop:defer. Loop::defer takes a function (such as a lambda with data) and defers the execution of said function until the specified loop's thread is ready to execute the function in a single-threaded fashion on correct thread. So in case you want to publish a message under a topic, or send on some other thread's sockets you can, but it requires a bit of indirection. You should aim for having as isolated apps and threads as possible.
 
 #### Settings
-Compression (permessage-deflate) has three main modes; uWS::DISABLED, uWS::SHARED_COMPRESSOR and any of the uWS::DEDICATED_COMPRESSOR_xKB. Disabled and shared options require no memory, while dedicated compressor requires the amount of memory you selected. For instance, uWS::DEDICATED_COMPRESSOR_4KB adds an overhead of 4KB per WebSocket while uWS::DEDICATED_COMPRESSOR_256KB adds - you guessed it - 256KB!
+Compression (permessage-deflate) has three main modes; fWS::DISABLED, fWS::SHARED_COMPRESSOR and any of the fWS::DEDICATED_COMPRESSOR_xKB. Disabled and shared options require no memory, while dedicated compressor requires the amount of memory you selected. For instance, fWS::DEDICATED_COMPRESSOR_4KB adds an overhead of 4KB per WebSocket while fWS::DEDICATED_COMPRESSOR_256KB adds - you guessed it - 256KB!
 
 Compressing using shared means that every WebSocket message is an isolated compression stream, it does not have a sliding compression window, kept between multiple send calls like the dedicated variants do.
 
@@ -210,7 +210,7 @@ Because the App itself is under RAII control, once the blocking .run call return
 
 ```c++
 int main() {
-    uWS::App().get("/*", [](auto *res, auto *req) {
+    fWS::App().get("/*", [](auto *res, auto *req) {
         res->end("Hello World!");
     }).listen(9001, [](auto *listenSocket) {
         if (listenSocket) {

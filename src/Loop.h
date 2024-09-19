@@ -24,7 +24,7 @@
 #include <libfastsockets.h>
 #include <iostream>
 
-namespace uWS {
+namespace fWS {
 struct Loop {
 private:
     static void wakeupCb(us_loop_t *loop) {

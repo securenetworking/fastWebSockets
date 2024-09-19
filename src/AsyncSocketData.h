@@ -20,7 +20,7 @@
 
 #include <string>
 
-namespace uWS {
+namespace fWS {
 
 struct BackPressure {
     std::string buffer;

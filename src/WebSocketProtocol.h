@@ -25,7 +25,7 @@
 #include <cstdlib>
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
 
 /* We should not overcomplicate these */
 const std::string_view ERR_TOO_BIG_MESSAGE("Received too big message");

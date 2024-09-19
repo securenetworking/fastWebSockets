@@ -23,7 +23,7 @@ void streamData(auto *res, auto stream, int chunk) {
         return;
       }
 
-      uWS::Loop::get()->defer([res, stream, chunk]() {
+      fWS::Loop::get()->defer([res, stream, chunk]() {
         streamData(res, stream, chunk + 1);
       });
     });
@@ -40,7 +40,7 @@ int main() {
 		constantChunk.append("a", 1);
 	}
 
-	uWS::SSLApp({
+	fWS::SSLApp({
 	  .key_file_name = "misc/key.pem",
 	  .cert_file_name = "misc/cert.pem",
 	  .passphrase = "1234"

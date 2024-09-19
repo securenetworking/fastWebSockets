@@ -1,1 +1,1 @@
-# Modified fork of [uWebSockets](https://github.com/uNetworking/uWebSockets)
+# Modified fork of [fastWebSockets](https://github.com/uNetworking/fastWebSockets)

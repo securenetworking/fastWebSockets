@@ -6,8 +6,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     std::string modifiableInput((char *) data, size);
 
-    uWS::getDecodedQueryValue("", modifiableInput);
-    uWS::getDecodedQueryValue("hello", modifiableInput);
+    fWS::getDecodedQueryValue("", modifiableInput);
+    fWS::getDecodedQueryValue("hello", modifiableInput);
 
     return 0;
 }

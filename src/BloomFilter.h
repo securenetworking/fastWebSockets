@@ -24,7 +24,7 @@
 #include <string_view>
 #include <bitset>
 
-namespace uWS {
+namespace fWS {
 
 struct BloomFilter {
 private:

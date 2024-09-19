@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace uWS {
+namespace fWS {
 
 struct WebSocketData : AsyncSocketData<false>, WebSocketState<true> {
     /* This guy has a lot of friends - why? */

@@ -25,7 +25,7 @@
 
 #include <string_view>
 
-namespace uWS {
+namespace fWS {
 
 template <bool SSL, bool isServer, typename USERDATA>
 struct WebSocket : AsyncSocket<SSL> {

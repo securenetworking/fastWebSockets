@@ -3,7 +3,7 @@
 struct Http3Response;
 struct Http3Request;
 
-namespace uWS {
+namespace fWS {
 
     struct Http3ContextData {
         struct RouterData {

@@ -19,7 +19,7 @@ struct StaticData {
 
     };
 
-    uWS::HttpRouter<RouterData> router;
+    fWS::HttpRouter<RouterData> router;
 
     StaticData() {
 
@@ -75,14 +75,14 @@ struct StaticData {
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     /* Create parser */
-    uWS::HttpParser httpParser;
+    fWS::HttpParser httpParser;
     /* User data */
     void *user = (void *) 13;
 
     /* If we are built with WITH_PROXY, pass a ProxyParser as reserved */
     void *reserved = nullptr;
 #ifdef UWS_WITH_PROXY
-    uWS::ProxyParser pp;
+    fWS::ProxyParser pp;
     reserved = (void *) &pp;
 #endif
 
@@ -102,7 +102,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         }
 
         /* Parse it */
-        auto [err, returnedUser] = httpParser.consumePostPadded((char *) data, size, user, reserved, [reserved](void *s, uWS::HttpRequest *httpRequest) -> void * {
+        auto [err, returnedUser] = httpParser.consumePostPadded((char *) data, size, user, reserved, [reserved](void *s, fWS::HttpRequest *httpRequest) -> void * {
 
             readBytes(httpRequest->getHeader(httpRequest->getUrl()));
             readBytes(httpRequest->getMethod());
@@ -112,7 +112,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             //readBytes(httpRequest->getParameter(0));
 
 #ifdef UWS_WITH_PROXY
-            auto *pp = (uWS::ProxyParser *) reserved;
+            auto *pp = (fWS::ProxyParser *) reserved;
             readBytes(pp->getSourceAddress());
 #endif
 

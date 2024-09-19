@@ -11,9 +11,9 @@ int main() {
         int nr = 0;
     };
 
-    /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-     * You may swap to using uWS:App() if you don't need SSL */
-    uWS::SSLApp *app = new uWS::SSLApp({
+    /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+     * You may swap to using fWS:App() if you don't need SSL */
+    fWS::SSLApp *app = new fWS::SSLApp({
         /* There are example certificates in fastWebSockets.js repo */
 	    .key_file_name = "misc/key.pem",
 	    .cert_file_name = "misc/cert.pem",
@@ -22,7 +22,7 @@ int main() {
     
     app->ws<PerSocketData>("/*", {
         /* Settings */
-        .compression = uWS::DISABLED,
+        .compression = fWS::DISABLED,
         .maxPayloadLength = 16 * 1024 * 1024,
         .idleTimeout = 60,
         .maxBackpressure = 16 * 1024 * 1024,
@@ -42,7 +42,7 @@ int main() {
                 ws->subscribe(topic);
             }
         },
-        .message = [&app](auto *ws, std::string_view message, uWS::OpCode opCode) {
+        .message = [&app](auto *ws, std::string_view message, fWS::OpCode opCode) {
             PerSocketData *perSocketData = (PerSocketData *) ws->getUserData();
 
             app->publish(perSocketData->topics[(size_t)(++perSocketData->nr % 32)], message, opCode);
@@ -72,5 +72,5 @@ int main() {
 
     delete app;
 
-    uWS::Loop::get()->free();
+    fWS::Loop::get()->free();
 }

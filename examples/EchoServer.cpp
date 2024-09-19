@@ -1,4 +1,4 @@
-/* We simply call the root header file "App.h", giving you uWS::App and uWS::SSLApp */
+/* We simply call the root header file "App.h", giving you fWS::App and fWS::SSLApp */
 #include "App.h"
 
 /* This is a simple WebSocket echo server example.
@@ -10,16 +10,16 @@ int main() {
         /* Fill with user data */
     };
 
-    /* Keep in mind that uWS::SSLApp({options}) is the same as uWS::App() when compiled without SSL support.
-     * You may swap to using uWS:App() if you don't need SSL */
-    uWS::App({
+    /* Keep in mind that fWS::SSLApp({options}) is the same as fWS::App() when compiled without SSL support.
+     * You may swap to using fWS:App() if you don't need SSL */
+    fWS::App({
         /* There are example certificates in fastWebSockets.js repo */
 	    .key_file_name = "misc/key.pem",
 	    .cert_file_name = "misc/cert.pem",
 	    .passphrase = "1234"
 	}).ws<PerSocketData>("/*", {
         /* Settings */
-        .compression = uWS::CompressOptions(uWS::DEDICATED_COMPRESSOR_4KB | uWS::DEDICATED_DECOMPRESSOR),
+        .compression = fWS::CompressOptions(fWS::DEDICATED_COMPRESSOR_4KB | fWS::DEDICATED_DECOMPRESSOR),
         .maxPayloadLength = 100 * 1024 * 1024,
         .idleTimeout = 16,
         .maxBackpressure = 100 * 1024 * 1024,
@@ -32,13 +32,13 @@ int main() {
             /* Open event here, you may access ws->getUserData() which points to a PerSocketData struct */
 
         },
-        .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
+        .message = [](auto *ws, std::string_view message, fWS::OpCode opCode) {
             /* This is the opposite of what you probably want; compress if message is LARGER than 16 kb
              * the reason we do the opposite here; compress if SMALLER than 16 kb is to allow for 
              * benchmarking of large message sending without compression */
             ws->send(message, opCode, message.length() < 16 * 1024);
         },
-        .dropped = [](auto */*ws*/, std::string_view /*message*/, uWS::OpCode /*opCode*/) {
+        .dropped = [](auto */*ws*/, std::string_view /*message*/, fWS::OpCode /*opCode*/) {
             /* A message was dropped due to set maxBackpressure and closeOnBackpressureLimit limit */
         },
         .drain = [](auto */*ws*/) {
