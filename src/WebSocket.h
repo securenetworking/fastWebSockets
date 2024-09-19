@@ -29,7 +29,7 @@ namespace uWS {
 
 template <bool SSL, bool isServer, typename USERDATA>
 struct WebSocket : AsyncSocket<SSL> {
-    template <bool> friend struct TemplatedApp;
+    template <bool, typename> friend struct TemplatedApp;
     template <bool> friend struct HttpResponse;
 private:
     typedef AsyncSocket<SSL> Super;
@@ -100,53 +100,84 @@ public:
             if (webSocketContextData->closeOnBackpressureLimit) {
                 us_socket_shutdown_read(SSL, (us_socket_t *) this);
             }
+
+            /* It is okay to call send again from within this callback since we immediately return with DROPPED afterwards */
+            if (webSocketContextData->droppedHandler) {
+                webSocketContextData->droppedHandler(this, message, opCode);
+            }
+
             return DROPPED;
         }
 
         /* If we are subscribers and have messages to drain we need to drain them here to stay synced */
         WebSocketData *webSocketData = (WebSocketData *) Super::getAsyncSocketData();
-        if (webSocketData->subscriber) {
-            /* This will call back into us, send. */
-            webSocketContextData->topicTree->drain(webSocketData->subscriber);
-        }
 
-        /* Transform the message to compressed domain if requested */
-        if (compress) {
-            WebSocketData *webSocketData = (WebSocketData *) Super::getAsyncSocketData();
-
-            /* Check and correct the compress hint. It is never valid to compress 0 bytes */
-            if (message.length() && opCode < 3 && webSocketData->compressionStatus == WebSocketData::ENABLED) {
-                LoopData *loopData = Super::getLoopData();
-                /* Compress using either shared or dedicated deflationStream */
-                if (webSocketData->deflationStream) {
-                    message = webSocketData->deflationStream->deflate(loopData->zlibContext, message, false);
+        /* Special path for long sends of non-compressed, non-SSL messages */
+        if (message.length() >= 16 * 1024 && !compress && !SSL && !webSocketData->subscriber && getBufferedAmount() == 0 && Super::getLoopData()->corkOffset == 0) {
+            char header[10];
+            int header_length = (int) protocol::formatMessage<isServer>(header, "", 0, opCode, message.length(), compress, fin);
+            int written = us_socket_write2(0, (struct us_socket_t *)this, header, header_length, message.data(), (int) message.length());
+        
+            if (written != header_length + (int) message.length()) {
+                /* Buffer up backpressure */
+                if (written > header_length) {
+                    webSocketData->buffer.append(message.data() + written - header_length, message.length() - (size_t) (written - header_length));
                 } else {
-                    message = loopData->deflationStream->deflate(loopData->zlibContext, message, true);
+                    webSocketData->buffer.append(header + written, (size_t) header_length - (size_t) written);
+                    webSocketData->buffer.append(message.data(), message.length());
                 }
-            } else {
-                compress = false;
-            }
-        }
-
-        /* Get size, allocate size, write if needed */
-        size_t messageFrameSize = protocol::messageFrameSize(message.length());
-        auto [sendBuffer, sendBufferAttribute] = Super::getSendBuffer(messageFrameSize);
-        protocol::formatMessage<isServer>(sendBuffer, message.data(), message.length(), opCode, message.length(), compress, fin);
-
-        /* Depending on size of message we have different paths */
-        if (sendBufferAttribute == SendBufferAttribute::NEEDS_DRAIN) {
-            /* This is a drain */
-            auto[written, failed] = Super::write(nullptr, 0);
-            if (failed) {
-                /* Return false for failure, skipping to reset the timeout below */
+                /* We cannot still be corked if we have backpressure.
+                 * We also cannot uncork normally since it will re-write the already buffered
+                 * up backpressure again. */
+                Super::uncorkWithoutSending();
                 return BACKPRESSURE;
             }
-        } else if (sendBufferAttribute == SendBufferAttribute::NEEDS_UNCORK) {
-            /* Uncork if we came here uncorked */
-            auto [written, failed] = Super::uncork();
-            if (failed) {
-                return BACKPRESSURE;
+        } else {
+
+            if (webSocketData->subscriber) {
+                /* This will call back into us, send. */
+                webSocketContextData->topicTree->drain(webSocketData->subscriber);
             }
+
+            /* Transform the message to compressed domain if requested */
+            if (compress) {
+                WebSocketData *webSocketData = (WebSocketData *) Super::getAsyncSocketData();
+
+                /* Check and correct the compress hint. It is never valid to compress 0 bytes */
+                if (message.length() && opCode < 3 && webSocketData->compressionStatus == WebSocketData::ENABLED) {
+                    LoopData *loopData = Super::getLoopData();
+                    /* Compress using either shared or dedicated deflationStream */
+                    if (webSocketData->deflationStream) {
+                        message = webSocketData->deflationStream->deflate(loopData->zlibContext, message, false);
+                    } else {
+                        message = loopData->deflationStream->deflate(loopData->zlibContext, message, true);
+                    }
+                } else {
+                    compress = false;
+                }
+            }
+
+            /* Get size, allocate size, write if needed */
+            size_t messageFrameSize = protocol::messageFrameSize(message.length());
+            auto [sendBuffer, sendBufferAttribute] = Super::getSendBuffer(messageFrameSize);
+            protocol::formatMessage<isServer>(sendBuffer, message.data(), message.length(), opCode, message.length(), compress, fin);
+
+            /* Depending on size of message we have different paths */
+            if (sendBufferAttribute == SendBufferAttribute::NEEDS_DRAIN) {
+                /* This is a drain */
+                auto[written, failed] = Super::write(nullptr, 0);
+                if (failed) {
+                    /* Return false for failure, skipping to reset the timeout below */
+                    return BACKPRESSURE;
+                }
+            } else if (sendBufferAttribute == SendBufferAttribute::NEEDS_UNCORK) {
+                /* Uncork if we came here uncorked */
+                auto [written, failed] = Super::uncork();
+                if (failed) {
+                    return BACKPRESSURE;
+                }
+            }
+
         }
 
         /* Every successful send resets the timeout */
@@ -195,6 +226,13 @@ public:
         /* Set shorter timeout (use ping-timeout) to avoid long hanging sockets after end() on broken connections */
         Super::timeout(webSocketContextData->idleTimeoutComponents.second);
 
+        /* At this point we iterate all currently held subscriptions and emit an event for all of them */
+        if (webSocketData->subscriber && webSocketContextData->subscriptionHandler) {
+            for (Topic *t : webSocketData->subscriber->topics) {
+                webSocketContextData->subscriptionHandler(this, t->name, (int) t->size() - 1, (int) t->size());
+            }
+        }
+
         /* Make sure to unsubscribe from any pub/sub node at exit */
         webSocketContextData->topicTree->freeSubscriber(webSocketData->subscriber);
         webSocketData->subscriber = nullptr;
@@ -203,6 +241,7 @@ public:
         if (webSocketContextData->closeHandler) {
             webSocketContextData->closeHandler(this, code, message);
         }
+        ((USERDATA *) this->getUserData())->~USERDATA();
     }
 
     /* Corks the response if possible. Leaves already corked socket be. */
@@ -214,6 +253,8 @@ public:
             /* There is no timeout when failing to uncork for WebSockets,
              * as that is handled by idleTimeout */
             auto [written, failed] = Super::uncork();
+            (void)written;
+            (void)failed;
         } else {
             /* We are already corked, or can't cork so let's just call the handler */
             handler();
@@ -234,7 +275,11 @@ public:
         }
 
         /* Cannot return numSubscribers as this is only for this particular websocket context */
-        webSocketContextData->topicTree->subscribe(webSocketData->subscriber, topic);
+        Topic *topicOrNull = webSocketContextData->topicTree->subscribe(webSocketData->subscriber, topic);
+        if (topicOrNull && webSocketContextData->subscriptionHandler) {
+            /* Emit this socket, the topic, new count, old count */
+            webSocketContextData->subscriptionHandler(this, topic, (int) topicOrNull->size(), (int) topicOrNull->size() - 1);
+        }
 
         /* Subscribe always succeeds */
         return true;
@@ -251,13 +296,13 @@ public:
         if (!webSocketData->subscriber) { return false; }
 
         /* Cannot return numSubscribers as this is only for this particular websocket context */
-        auto [ok, last] = webSocketContextData->topicTree->unsubscribe(webSocketData->subscriber, topic);
-
-        /* Free us as subscribers if we unsubscribed from our last topic */
-        if (ok && last) {
-            webSocketContextData->topicTree->freeSubscriber(webSocketData->subscriber);
-            webSocketData->subscriber = nullptr;
+        auto [ok, last, newCount] = webSocketContextData->topicTree->unsubscribe(webSocketData->subscriber, topic);
+        /* Emit subscription event if last */
+        if (ok && webSocketContextData->subscriptionHandler) {
+            webSocketContextData->subscriptionHandler(this, topic, newCount, newCount + 1);
         }
+
+        /* Leave us as subscribers even if we subscribe to nothing (last unsubscribed topic might miss its message otherwise) */
 
         return ok;
     }

@@ -47,9 +47,10 @@ struct AsyncSocket {
     /* This guy is promiscuous */
     template <bool> friend struct HttpContext;
     template <bool, bool, typename> friend struct WebSocketContext;
-    template <bool> friend struct TemplatedApp;
+    template <bool, typename> friend struct TemplatedApp;
     template <bool, typename> friend struct WebSocketContextData;
     template <typename, typename> friend struct TopicTree;
+    template <bool> friend struct HttpResponse;
 
 private:
     /* Helper, do not use directly (todo: move to uSockets or de-crazify) */
@@ -122,6 +123,12 @@ protected:
         getLoopData()->corkedSocket = this;
     }
 
+    void uncorkWithoutSending() {
+        if (isCorked()) {
+            getLoopData()->corkedSocket = nullptr;
+        }
+    }
+
     /* Cork this socket. Only one socket may ever be corked per-loop at any given time */
     void cork() {
         /* Extra check for invalid corking of others */
@@ -134,7 +141,7 @@ protected:
         getLoopData()->corkedSocket = this;
     }
 
-    /* Returns wheter we are corked or not */
+    /* Returns whether we are corked or not */
     bool isCorked() {
         return getLoopData()->corkedSocket == this;
     }
@@ -200,9 +207,9 @@ protected:
         unsigned char *b = (unsigned char *) binary.data();
 
         if (binary.length() == 4) {
-            ipLength = sprintf(buf, "%u.%u.%u.%u", b[0], b[1], b[2], b[3]);
+            ipLength = snprintf(buf, 64, "%u.%u.%u.%u", b[0], b[1], b[2], b[3]);
         } else {
-            ipLength = sprintf(buf, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
+            ipLength = snprintf(buf, 64, "%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
                 b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10], b[11],
                 b[12], b[13], b[14], b[15]);
         }
@@ -224,7 +231,7 @@ protected:
     }
 
     /* Write in three levels of prioritization: cork-buffer, syscall, socket-buffer. Always drain if possible.
-     * Returns pair of bytes written (anywhere) and wheter or not this call resulted in the polling for
+     * Returns pair of bytes written (anywhere) and whether or not this call resulted in the polling for
      * writable (or we are in a state that implies polling for writable). */
     std::pair<int, bool> write(const char *src, int length, bool optionally = false, int nextLength = 0) {
         /* Fake success if closed, simple fix to allow uncork of closed socket to succeed */
@@ -271,7 +278,7 @@ protected:
                     /* Fall through to default return */
                 } else {
                     /* Strategy differences between SSL and non-SSL regarding syscall minimizing */
-                    if constexpr (SSL) {
+                    if constexpr (false) {
                         /* Cork up as much as we can */
                         unsigned int stripped = LoopData::CORK_BUFFER_SIZE - loopData->corkOffset;
                         memcpy(loopData->corkBuffer + loopData->corkOffset, src, stripped);

@@ -1,4 +1,8 @@
 default:
+	$(CXX) -std=c++17 -fsanitize=address Query.cpp -o Query
+	./Query
+	$(CXX) -std=c++17 -fsanitize=address ChunkedEncoding.cpp -o ChunkedEncoding
+	./ChunkedEncoding
 	$(CXX) -std=c++17 -fsanitize=address TopicTree.cpp -o TopicTree
 	./TopicTree
 	$(CXX) -std=c++17 -fsanitize=address HttpRouter.cpp -o HttpRouter
@@ -9,3 +13,14 @@ default:
 	./ExtensionsNegotiator
 	$(CXX) -std=c++17 -fsanitize=address HttpParser.cpp -o HttpParser
 	./HttpParser
+
+performance:
+	$(CXX) -std=c++17 HttpRouter.cpp -O3 -o HttpRouter
+	./HttpRouter
+
+smoke:
+	../Crc32 &
+	sleep 1
+	~/.deno/bin/deno run --allow-net smoke.mjs
+	node smoke.mjs
+	pkill Crc32

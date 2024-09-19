@@ -46,7 +46,7 @@ static const int HTTP_TIMEOUT_S = 10;
 template <bool SSL>
 struct HttpResponse : public AsyncSocket<SSL> {
     /* Solely used for getHttpResponseData() */
-    template <bool> friend struct TemplatedApp;
+    template <bool, typename> friend struct TemplatedApp;
     typedef AsyncSocket<SSL> Super;
 private:
     HttpResponseData<SSL> *getHttpResponseData() {
@@ -55,7 +55,9 @@ private:
 
     /* Write an unsigned 32-bit integer in hex */
     void writeUnsignedHex(unsigned int value) {
-        char buf[10];
+        /* Buf really only needs to be 8 long but building with
+         * -mavx2, GCC still wants to overstep it so made it 16 */
+        char buf[16];
         int length = utils::u32toaHex(value, buf);
 
         /* For now we do this copy */
@@ -73,6 +75,9 @@ private:
 
     /* Called only once per request */
     void writeMark() {
+        /* Date is always written */
+        writeHeader("Date", std::string_view(((LoopData *) us_loop_ext(us_socket_context_loop(SSL, (us_socket_context(SSL, (us_socket_t *) this)))))->date, 29));
+
         /* You can disable this altogether */
 #ifndef UWS_HTTPRESPONSE_NO_WRITEMARK
         if (!Super::getLoopData()->noMark) {
@@ -129,6 +134,21 @@ private:
 
             httpResponseData->markDone();
 
+            /* We need to check if we should close this socket here now */
+            if (!Super::isCorked()) {
+                if (httpResponseData->state & HttpResponseData<SSL>::HTTP_CONNECTION_CLOSE) {
+                    if ((httpResponseData->state & HttpResponseData<SSL>::HTTP_RESPONSE_PENDING) == 0) {
+                        if (((AsyncSocket<SSL> *) this)->getBufferedAmount() == 0) {
+                            ((AsyncSocket<SSL> *) this)->shutdown();
+                            /* We need to force close after sending FIN since we want to hinder
+                                * clients from keeping to send their huge data */
+                            ((AsyncSocket<SSL> *) this)->close();
+                            return true;
+                        }
+                    }
+                }
+            }
+
             /* tryEnd can never fail when in chunked mode, since we do not have tryWrite (yet), only write */
             Super::timeout(HTTP_TIMEOUT_S);
             return true;
@@ -179,6 +199,20 @@ private:
             /* Remove onAborted function if we reach the end */
             if (httpResponseData->offset == totalSize) {
                 httpResponseData->markDone();
+
+                /* We need to check if we should close this socket here now */
+                if (!Super::isCorked()) {
+                    if (httpResponseData->state & HttpResponseData<SSL>::HTTP_CONNECTION_CLOSE) {
+                        if ((httpResponseData->state & HttpResponseData<SSL>::HTTP_RESPONSE_PENDING) == 0) {
+                            if (((AsyncSocket<SSL> *) this)->getBufferedAmount() == 0) {
+                                ((AsyncSocket<SSL> *) this)->shutdown();
+                                /* We need to force close after sending FIN since we want to hinder
+                                * clients from keeping to send their huge data */
+                                ((AsyncSocket<SSL> *) this)->close();
+                            }
+                        }
+                    }
+                }
             }
 
             return success;
@@ -198,7 +232,7 @@ public:
 #endif
 
     /* Manually upgrade to WebSocket. Typically called in upgrade handler. Immediately calls open handler.
-     * NOTE: Will invalidate 'this' as socket might change location in memory. Throw away aftert use. */
+     * NOTE: Will invalidate 'this' as socket might change location in memory. Throw away after use. */
     template <typename UserData>
     void upgrade(UserData &&userData, std::string_view secWebSocketKey, std::string_view secWebSocketProtocol,
             std::string_view secWebSocketExtensions,
@@ -300,6 +334,9 @@ public:
             httpContextData->upgradedWebSocket = webSocket;
         }
 
+        /* Arm maxLifetime timeout */
+        us_socket_long_timeout(SSL, (us_socket_t *) webSocket, webSocketContextData->maxLifetime);
+
         /* Arm idleTimeout */
         us_socket_timeout(SSL, (us_socket_t *) webSocket, webSocketContextData->idleTimeoutComponents.first);
 
@@ -385,7 +422,7 @@ public:
     /* End without a body (no content-length) or end with a spoofed content-length. */
     void endWithoutBody(std::optional<size_t> reportedContentLength = std::nullopt, bool closeConnection = false) {
         if (reportedContentLength.has_value()) {
-            //internalEnd({nullptr, 0}, reportedContentLength.value(), false, true, closeConnection);
+            internalEnd({nullptr, 0}, reportedContentLength.value(), false, true, closeConnection);
         } else {
             internalEnd({nullptr, 0}, 0, false, false, closeConnection);
         }
@@ -398,8 +435,8 @@ public:
 
     /* Try and end the response. Returns [true, true] on success.
      * Starts a timeout in some cases. Returns [ok, hasResponded] */
-    std::pair<bool, bool> tryEnd(std::string_view data, uintmax_t totalSize = 0) {
-        return {internalEnd(data, totalSize, true), hasResponded()};
+    std::pair<bool, bool> tryEnd(std::string_view data, uintmax_t totalSize = 0, bool closeConnection = false) {
+        return {internalEnd(data, totalSize, true, true, closeConnection), hasResponded()};
     }
 
     /* Write parts of the response in chunking fashion. Starts timeout if failed. */
@@ -442,6 +479,13 @@ public:
         return httpResponseData->offset;
     }
 
+    /* If you are messing around with sendfile you might want to override the offset. */
+    void overrideWriteOffset(uintmax_t offset) {
+        HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
+
+        httpResponseData->offset = offset;
+    }
+
     /* Checking if we have fully responded and are ready for another request */
     bool hasResponded() {
         HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
@@ -452,15 +496,48 @@ public:
     /* Corks the response if possible. Leaves already corked socket be. */
     HttpResponse *cork(MoveOnlyFunction<void()> &&handler) {
         if (!Super::isCorked() && Super::canCork()) {
+            LoopData *loopData = Super::getLoopData();
             Super::cork();
             handler();
 
+            /* The only way we could possibly have changed the corked socket during handler call, would be if 
+             * the HTTP socket was upgraded to WebSocket and caused a realloc. Because of this we cannot use "this"
+             * from here downwards. The corking is done with corkUnchecked() in upgrade. It steals cork. */
+            auto *newCorkedSocket = loopData->corkedSocket;
+
+            /* If nobody is corked, it means most probably that large amounts of data has
+             * been written and the cork buffer has already been sent off and uncorked.
+             * We are done here, if that is the case. */
+            if (!newCorkedSocket) {
+                return this;
+            }
+
             /* Timeout on uncork failure, since most writes will succeed while corked */
-            auto [written, failed] = Super::uncork();
+            auto [written, failed] = static_cast<Super *>(newCorkedSocket)->uncork();
+
+            /* If we are no longer an HTTP socket then early return the new "this".
+             * We don't want to even overwrite timeout as it is set in upgrade already. */
+            if (this != newCorkedSocket) {
+                return static_cast<HttpResponse *>(newCorkedSocket);
+            }
+
             if (failed) {
                 /* For now we only have one single timeout so let's use it */
                 /* This behavior should equal the behavior in HttpContext when uncorking fails */
                 Super::timeout(HTTP_TIMEOUT_S);
+            }
+
+            /* If we have no backbuffer and we are connection close and we responded fully then close */
+            HttpResponseData<SSL> *httpResponseData = getHttpResponseData();
+            if (httpResponseData->state & HttpResponseData<SSL>::HTTP_CONNECTION_CLOSE) {
+                if ((httpResponseData->state & HttpResponseData<SSL>::HTTP_RESPONSE_PENDING) == 0) {
+                    if (((AsyncSocket<SSL> *) this)->getBufferedAmount() == 0) {
+                        ((AsyncSocket<SSL> *) this)->shutdown();
+                        /* We need to force close after sending FIN since we want to hinder
+                        * clients from keeping to send their huge data */
+                        ((AsyncSocket<SSL> *) this)->close();
+                    }
+                }
             }
         } else {
             /* We are already corked, or can't cork so let's just call the handler */
@@ -490,6 +567,9 @@ public:
     void onData(MoveOnlyFunction<void(std::string_view, bool)> &&handler) {
         HttpResponseData<SSL> *data = getHttpResponseData();
         data->inStream = std::move(handler);
+
+        /* Always reset this counter here */
+        data->received_bytes_per_timeout = 0;
     }
 };
 

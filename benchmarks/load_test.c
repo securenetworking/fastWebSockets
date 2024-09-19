@@ -1,7 +1,29 @@
 /* This is a simple yet efficient WebSocket server benchmark much like WRK */
 
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
+
+#ifdef __APPLE__
+#include <libkern/OSByteOrder.h>
+
+#define htobe16(x) OSSwapHostToBigInt16(x)
+#define htole16(x) OSSwapHostToLittleInt16(x)
+#define be16toh(x) OSSwapBigToHostInt16(x)
+#define le16toh(x) OSSwapLittleToHostInt16(x)
+
+#define htobe32(x) OSSwapHostToBigInt32(x)
+#define htole32(x) OSSwapHostToLittleInt32(x)
+#define be32toh(x) OSSwapBigToHostInt32(x)
+#define le32toh(x) OSSwapLittleToHostInt32(x)
+
+#define htobe64(x) OSSwapHostToBigInt64(x)
+#define htole64(x) OSSwapHostToLittleInt64(x)
+#define be64toh(x) OSSwapBigToHostInt64(x)
+#define le64toh(x) OSSwapLittleToHostInt64(x)
+#else
 #include <endian.h>
+#endif
+
+
 #include <stdint.h>
 
 #include <libusockets.h>
@@ -26,7 +48,7 @@ unsigned char web_socket_request_deflate[13] = {
 };
 
 /* Not compressed */
-unsigned char web_socket_request_text_small[26] = {130, 128 | 20, 1, 2, 3, 4};
+unsigned char web_socket_request_text_small[126] = {130, 128 | 20, 1, 2, 3, 4};
 unsigned int web_socket_request_text_size = 26;
 unsigned char *web_socket_request_text = web_socket_request_text_small;
 
@@ -40,6 +62,7 @@ void init_big_message(unsigned int size) {
     web_socket_request_text_size = size + 6 + 8;
 
     web_socket_request_text = malloc(web_socket_request_text_size);
+    memset(web_socket_request_text, 'T', web_socket_request_text_size);
     web_socket_request_text[0] = 130;
     web_socket_request_text[1] = 255;
     uint64_t msg_size = htobe64(size);
@@ -48,6 +71,26 @@ void init_big_message(unsigned int size) {
     web_socket_request_text[10] = 2;
     web_socket_request_text[10] = 3;
     web_socket_request_text[10] = 4;
+}
+
+void init_medium_message(unsigned int size) {
+    if (size > 65536) {
+        printf("Error: message size must be smaller\n");
+        exit(0);
+    }
+
+    web_socket_request_text_size = size + 6 + 2; // 8 for big
+
+    web_socket_request_text = malloc(web_socket_request_text_size);
+    memset(web_socket_request_text, 'T', web_socket_request_text_size);
+    web_socket_request_text[0] = 130;
+    web_socket_request_text[1] = 254;
+    uint16_t msg_size = htobe16(size);
+    memcpy(&web_socket_request_text[2], &msg_size, 2);
+    web_socket_request_text[4] = 1;
+    web_socket_request_text[5] = 2;
+    web_socket_request_text[6] = 3;
+    web_socket_request_text[7] = 4;
 }
 
 char request_deflate[] = "GET / HTTP/1.1\r\n"
@@ -207,7 +250,7 @@ int main(int argc, char **argv) {
 
     /* Parse host and port */
     if (argc != 6 && argc != 7) {
-        printf("Usage: connections host port ssl deflate [size_mb]\n");
+        printf("Usage: connections host port ssl deflate [payload_size_bytes]\n");
         return 0;
     }
 
@@ -226,10 +269,21 @@ int main(int argc, char **argv) {
     } else {
         /* Only if we are NOT using defalte can we support testing with 100mb for now */
         if (argc == 7) {
-            int size_mb = atoi(argv[6]);
-            printf("Using message size of %d MB\n", size_mb);
-            /* Size has to be in MB since the minimal size is 64kb */
-            init_big_message(size_mb * 1024 * 1024);
+            int size_kb = atoi(argv[6]);
+            printf("Using message size of %d bytes\n", size_kb);
+
+            /* Size has to be in KB since the minimal size for medium is 1kb */
+            if (size_kb <= 125) {
+                /* For small messages we just reduce the size as needed */
+                web_socket_request_text_size = size_kb + 6;
+                web_socket_request_text[1] = 128 | size_kb;
+            } else if (size_kb <= 65535) {
+                init_medium_message(size_kb);
+            } else {      
+                init_big_message(size_kb);
+            }
+        } else {
+            printf("Using message size of %d bytes\n", 20);
         }
 
         web_socket_request = web_socket_request_text;

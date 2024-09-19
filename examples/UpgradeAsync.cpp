@@ -15,8 +15,8 @@ int main() {
      * You may swap to using uWS:App() if you don't need SSL */
     uWS::SSLApp({
         /* There are example certificates in uWebSockets.js repo */
-	    .key_file_name = "../misc/key.pem",
-	    .cert_file_name = "../misc/cert.pem",
+	    .key_file_name = "misc/key.pem",
+	    .cert_file_name = "misc/cert.pem",
 	    .passphrase = "1234"
 	}).ws<PerSocketData>("/*", {
         /* Settings */
@@ -77,13 +77,15 @@ int main() {
                     * such as res->writeStatus(...)->writeHeader(...)->end(...); or similar.*/
 
                     /* This call will immediately emit .open event */
-                    upgradeData->httpRes->template upgrade<PerSocketData>({
-                        /* We initialize PerSocketData struct here */
-                        .something = 13
-                    }, upgradeData->secWebSocketKey,
-                        upgradeData->secWebSocketProtocol,
-                        upgradeData->secWebSocketExtensions,
-                        upgradeData->context);
+                    upgradeData->httpRes->cork([upgradeData]() {
+                        upgradeData->httpRes->template upgrade<PerSocketData>({
+                            /* We initialize PerSocketData struct here */
+                            .something = 13
+                        }, upgradeData->secWebSocketKey,
+                            upgradeData->secWebSocketProtocol,
+                            upgradeData->secWebSocketExtensions,
+                            upgradeData->context);
+                    });
                 } else {
                     std::cout << "Async task done, but the HTTP socket was closed. Skipping upgrade to WebSocket!" << std::endl;
                 }

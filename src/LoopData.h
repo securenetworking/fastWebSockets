@@ -23,10 +23,13 @@
 #include <vector>
 #include <mutex>
 #include <map>
+#include <ctime>
+#include <cstdint>
 
 #include "PerMessageDeflate.h"
-
 #include "MoveOnlyFunction.h"
+
+struct us_timer_t;
 
 namespace uWS {
 
@@ -43,6 +46,10 @@ private:
     std::map<void *, MoveOnlyFunction<void(Loop *)>> postHandlers, preHandlers;
 
 public:
+    LoopData() {
+        updateDate();
+    }
+
     ~LoopData() {
         /* If we have had App.ws called with compression we need to clear this */
         if (zlibContext) {
@@ -52,6 +59,35 @@ public:
         }
         delete [] corkBuffer;
     }
+
+    void updateDate() {
+        cacheTimepoint = time(0);
+        struct tm tstruct = {};
+#ifdef _WIN32
+        /* Micro, fucking soft never follows spec. */
+        gmtime_s(&tstruct, &cacheTimepoint);
+#else
+        gmtime_r(&cacheTimepoint, &tstruct);
+#endif
+        static const char wday_name[][4] = {
+            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        };
+        static const char mon_name[][4] = {
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        };
+        snprintf(date, 32, "%.3s, %.2u %.3s %.4u %.2u:%.2u:%.2u GMT",
+            wday_name[tstruct.tm_wday],
+            tstruct.tm_mday % 99,
+            mon_name[tstruct.tm_mon],
+            (1900 + tstruct.tm_year) % 9999,
+            tstruct.tm_hour % 99,
+            tstruct.tm_min % 99,
+            tstruct.tm_sec % 99);
+    }
+
+    char date[32];
+    time_t cacheTimepoint = 0;
 
     /* Be silent */
     bool noMark = false;
@@ -68,6 +104,8 @@ public:
     ZlibContext *zlibContext = nullptr;
     InflationStream *inflationStream = nullptr;
     DeflationStream *deflationStream = nullptr;
+
+    us_timer_t *dateTimer;
 };
 
 }
