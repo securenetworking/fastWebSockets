@@ -368,7 +368,7 @@ __OFATS_ANY_INVOCABLE(const, &&, true, const&&)   // 121
 
 }  // namespace ofats
 
-/* We, uWebSockets define our own type */
+/* We, fastWebSockets define our own type */
 namespace uWS {
   template <class T>
   using MoveOnlyFunction = ofats::any_invocable<T>;

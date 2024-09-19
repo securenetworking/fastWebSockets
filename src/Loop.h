@@ -21,7 +21,7 @@
 /* The loop is lazily created per-thread and run with run() */
 
 #include "LoopData.h"
-#include <libusockets.h>
+#include <libfastsockets.h>
 #include <iostream>
 
 namespace uWS {
@@ -110,7 +110,7 @@ public:
      * Will automatically free all initialized loops at exit. */
     static Loop *get(void *existingNativeLoop = nullptr) {
         if (!getLazyLoop().loop) {
-            /* If we are given a native loop pointer we pass that to uSockets and let it deal with it */
+            /* If we are given a native loop pointer we pass that to fastSockets and let it deal with it */
             if (existingNativeLoop) {
                 /* Todo: here we want to pass the pointer, not a boolean */
                 getLazyLoop().loop = create(existingNativeLoop);
@@ -132,7 +132,7 @@ public:
         us_timer_close(loopData->dateTimer);
 
         loopData->~LoopData();
-        /* uSockets will track whether this loop is owned by us or a borrowed alien loop */
+        /* fastSockets will track whether this loop is owned by us or a borrowed alien loop */
         us_loop_free((us_loop_t *) this);
 
         /* Reset lazyLoop */

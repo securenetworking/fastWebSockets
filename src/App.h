@@ -77,7 +77,7 @@ namespace uWS {
         }
     };
 
-    static_assert(sizeof(struct us_socket_context_options_t) == sizeof(SocketContextOptions), "Mismatching uSockets/uWebSockets ABI");
+    static_assert(sizeof(struct us_socket_context_options_t) == sizeof(SocketContextOptions), "Mismatching fastSockets/fastWebSockets ABI");
 
 template <bool SSL, typename BuilderPatternReturnType>
 struct TemplatedApp {
@@ -222,7 +222,7 @@ public:
         /* Register default handler for 404 (can be overridden by user) */
         this->any("/*", [](auto *res, auto */*req*/) {
 		    res->writeStatus("404 File Not Found");
-	        res->end("<html><body><h1>File Not Found</h1><hr><i>uWebSockets/20 Server</i></body></html>");
+	        res->end("<html><body><h1>File Not Found</h1><hr><i>fastWebSockets/20 Server</i></body></html>");
         });
     }
 

@@ -13,12 +13,12 @@ capi: default
 	./build capi
 
 install:
-	mkdir -p "$(DESTDIR)$(prefix)/include/uWebSockets"
-	cp -r src/* "$(DESTDIR)$(prefix)/include/uWebSockets"
+	mkdir -p "$(DESTDIR)$(prefix)/include/fastWebSockets"
+	cp -r src/* "$(DESTDIR)$(prefix)/include/fastWebSockets"
 
 all: default
 	./build all
 
 default:
-	$(MAKE) -C uSockets
+	$(MAKE) -C fastSockets
 	$(CC) build.c -o build

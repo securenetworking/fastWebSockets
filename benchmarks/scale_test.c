@@ -1,6 +1,6 @@
 /* This is a scalability test for testing million(s) of pinging connections */
 
-#include <libusockets.h>
+#include <libfastsockets.h>
 int SSL;
 
 #include <stdio.h>

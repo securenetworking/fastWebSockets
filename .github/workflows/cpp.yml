@@ -11,12 +11,12 @@ jobs:
       id: build
       uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
       with:
-        oss-fuzz-project-name: 'uwebsockets'
+        oss-fuzz-project-name: 'fastwebsockets'
         language: c++
     - name: Run fuzzers
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
-        oss-fuzz-project-name: 'uwebsockets'
+        oss-fuzz-project-name: 'fastwebsockets'
         language: c++
         fuzz-seconds: 600
     - name: Upload crash
@@ -30,15 +30,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Clone source
-        run: git clone --recursive https://github.com/uNetworking/uWebSockets.git
+        run: git clone --recursive https://github.com/securenetworking/fastWebSockets.git
       - name: Install libuv
         run: |
           vcpkg install libuv:x64-windows
-          cp C:\vcpkg\installed\x64-windows\bin\uv.dll uWebSockets\uv.dll
+          cp C:\vcpkg\installed\x64-windows\bin\uv.dll fastWebSockets\uv.dll
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build examples
         run: |
-          cd uWebSockets
+          cd fastWebSockets
           $Env:WITH_ZLIB='0'; $ENV:WITH_LTO='0'; $Env:CC='clang';
           $ENV:CFLAGS='-I C:\vcpkg\installed\x64-windows\include';
           $ENV:LDFLAGS='-L C:\vcpkg\installed\x64-windows\lib';
@@ -46,7 +46,7 @@ jobs:
           ls
       - name: Run smoke test
         run: |
-          cd uWebSockets
+          cd fastWebSockets
           iwr https://deno.land/x/install/install.ps1 -useb | iex
           Start-Process -NoNewWindow .\Crc32
           sleep 1
@@ -59,19 +59,19 @@ jobs:
     
     steps:
     - name: Clone source
-      run: git clone --recursive https://github.com/uNetworking/uWebSockets.git
+      run: git clone --recursive https://github.com/securenetworking/fastWebSockets.git
     - name: Build source
-      run: make -C uWebSockets
+      run: make -C fastWebSockets
     - name: List binaries
-      run: ls uWebSockets
+      run: ls fastWebSockets
     - name: Install Deno
       run: curl -fsSL https://deno.land/x/install/install.sh | sh
     - name: Run smoke test
-      run: make -C uWebSockets/tests smoke
+      run: make -C fastWebSockets/tests smoke
     - name: Run unit tests
-      run: make -C uWebSockets/tests
+      run: make -C fastWebSockets/tests
     - name: Autobahn|Testsuite
-      run: ~/.deno/bin/deno run -A --unstable uWebSockets/autobahn/server-test.js
+      run: ~/.deno/bin/deno run -A --unstable fastWebSockets/autobahn/server-test.js
       
   build_osx:
 
@@ -79,14 +79,14 @@ jobs:
     
     steps:
     - name: Clone source
-      run: git clone --recursive https://github.com/uNetworking/uWebSockets.git
+      run: git clone --recursive https://github.com/securenetworking/fastWebSockets.git
     - name: Build source
-      run: make -C uWebSockets
+      run: make -C fastWebSockets
     - name: List binaries
-      run: ls uWebSockets
+      run: ls fastWebSockets
     - name: Install Deno
       run: curl -fsSL https://deno.land/x/install/install.sh | sh
     - name: Run smoke test
-      run: make -C uWebSockets/tests smoke
+      run: make -C fastWebSockets/tests smoke
     - name: Run unit tests
-      run: make -C uWebSockets/tests
+      run: make -C fastWebSockets/tests

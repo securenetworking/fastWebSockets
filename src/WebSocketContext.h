@@ -314,7 +314,7 @@ private:
             if (asyncSocket->getBufferedAmount() == 0) {
                 /* We can now be in shutdown state */
                 if (webSocketData->isShuttingDown) {
-                    /* Shutting down a closed socket is handled by uSockets and just fine */
+                    /* Shutting down a closed socket is handled by fastSockets and just fine */
                     asyncSocket->shutdown();
                 }
             }

@@ -7,10 +7,10 @@ A secure web server must be capable of receiving mass amount of malicious input 
 * AddressSanitizer
 * MemorySanitizer
 
-### Overall coverage is about 95% for both uSockets and uWebSockets, all source code included
+### Overall coverage is about 95% for both fastSockets and fastWebSockets, all source code included
 * No defects or outstanding bugs
 * No timeouts, OOM, crashes or other issues
-* Transparent reporting of found issues: https://bugs.chromium.org/p/oss-fuzz/issues/list?q=label%3AProj-uwebsockets&can=1
+* Transparent reporting of found issues: https://bugs.chromium.org/p/oss-fuzz/issues/list?q=label%3AProj-fastwebsockets&can=1
 
 ### Currently the following parts are individually fuzzed:
 
@@ -23,5 +23,5 @@ A secure web server must be capable of receiving mass amount of malicious input 
 * Pub/sub "topic tree"
 
 ### While some targets are entire (mocked) example apps
-* libEpollFuzzer mocks the kernel syscalls and allows to cover a lot of uSockets source code.
-* A mock implementation of uSockets allows to cover a lot of the inbetween logic of uWebSockets.
+* libEpollFuzzer mocks the kernel syscalls and allows to cover a lot of fastSockets source code.
+* A mock implementation of fastSockets allows to cover a lot of the inbetween logic of fastWebSockets.

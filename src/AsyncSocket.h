@@ -21,13 +21,13 @@
 /* This class implements async socket memory management strategies */
 
 /* NOTE: Many unsigned/signed conversion warnings could be solved by moving from int length
- * to unsigned length for everything to/from uSockets - this would however remove the opportunity
+ * to unsigned length for everything to/from fastSockets - this would however remove the opportunity
  * to signal error with -1 (which is how the entire UNIX syscalling is built). */
 
 #include <cstring>
 #include <iostream>
 
-#include "libusockets.h"
+#include "libfastsockets.h"
 
 #include "LoopData.h"
 #include "AsyncSocketData.h"
@@ -53,9 +53,9 @@ struct AsyncSocket {
     template <bool> friend struct HttpResponse;
 
 private:
-    /* Helper, do not use directly (todo: move to uSockets or de-crazify) */
+    /* Helper, do not use directly (todo: move to fastSockets or de-crazify) */
     void throttle_helper(int toggle) {
-        /* These should be exposed by uSockets */
+        /* These should be exposed by fastSockets */
         static thread_local int us_events[2] = {0, 0};
 
         struct us_poll_t *p = (struct us_poll_t *) this;

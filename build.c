@@ -12,8 +12,8 @@ int main(int argc, char **argv) {
     char *EXAMPLE_FILES[] = {"CachingApp", "HelloWorldThreaded", "Http3Server", "Broadcast", "HelloWorld", "Crc32", "ServerName",
     "EchoServer", "BroadcastingEchoServer", "UpgradeSync", "UpgradeAsync", "ParameterRoutes"};
 
-    strcat(CXXFLAGS, " -march=native -O3 -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -std=c++20 -Isrc -IuSockets/src");
-    strcat(LDFLAGS, " uSockets/*.o");
+    strcat(CXXFLAGS, " -march=native -O3 -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -std=c++20 -Isrc -IfastSockets/src");
+    strcat(LDFLAGS, " fastSockets/*.o");
 
     // By default we use LTO, but Windows does not support it
     if (!env_is("WITH_LTO", "0")) {
@@ -35,13 +35,13 @@ int main(int argc, char **argv) {
     // WITH_QUIC enables experimental Http3 examples
     if (env_is("WITH_QUIC", "1")) {
         strcat(CXXFLAGS, " -DLIBUS_USE_QUIC");
-        strcat(LDFLAGS, " -pthread -lz -lm uSockets/lsquic/src/liblsquic/liblsquic.a");
+        strcat(LDFLAGS, " -pthread -lz -lm fastSockets/lsquic/src/liblsquic/liblsquic.a");
     }
 
     // Heavily prefer boringssl over openssl
     if (env_is("WITH_BORINGSSL", "1")) {
-        strcat(CFLAGS, " -I uSockets/boringssl/include -pthread -DLIBUS_USE_OPENSSL");
-        strcat(LDFLAGS, " -pthread uSockets/boringssl/build/ssl/libssl.a uSockets/boringssl/build/crypto/libcrypto.a");
+        strcat(CFLAGS, " -I fastSockets/boringssl/include -pthread -DLIBUS_USE_OPENSSL");
+        strcat(LDFLAGS, " -pthread fastSockets/boringssl/build/ssl/libssl.a fastSockets/boringssl/build/crypto/libcrypto.a");
     } else {
         // WITH_OPENSSL=1 enables OpenSSL 1.1+ support
         if (env_is("WITH_OPENSSL", "1")) {

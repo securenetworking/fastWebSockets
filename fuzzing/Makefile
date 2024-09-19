@@ -12,22 +12,22 @@ oss-fuzz:
 # Copy dictionaries
 	cp *.dict $(OUT)
 # libEpollFuzzer cases
-	# Compile uSockets without -flto
+	# Compile fastSockets without -flto
 	rm -rf *.o
-	$(CC) $(CFLAGS) -DLIBUS_NO_SSL -std=c11 -I../uSockets/src -O3 -c ../uSockets/src/*.c ../uSockets/src/eventing/*.c ../uSockets/src/crypto/*.c
+	$(CC) $(CFLAGS) -DLIBUS_NO_SSL -std=c11 -I../fastSockets/src -O3 -c ../fastSockets/src/*.c ../fastSockets/src/eventing/*.c ../fastSockets/src/crypto/*.c
 	# Link against object files
-	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../uSockets/src EpollHelloWorld.cpp -o $(OUT)/EpollHelloWorld $(LIB_FUZZING_ENGINE) *.o
+	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../fastSockets/src EpollHelloWorld.cpp -o $(OUT)/EpollHelloWorld $(LIB_FUZZING_ENGINE) *.o
 	rm -f EpollHelloWorld.o
-	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../uSockets/src AsyncEpollHelloWorld.cpp -o $(OUT)/AsyncEpollHelloWorld $(LIB_FUZZING_ENGINE) *.o
+	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../fastSockets/src AsyncEpollHelloWorld.cpp -o $(OUT)/AsyncEpollHelloWorld $(LIB_FUZZING_ENGINE) *.o
 	rm -f AsyncEpollHelloWorld.o
-	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../uSockets/src EpollEchoServer.cpp -o $(OUT)/EpollEchoServer $(LIB_FUZZING_ENGINE) *.o
+	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../fastSockets/src EpollEchoServer.cpp -o $(OUT)/EpollEchoServer $(LIB_FUZZING_ENGINE) *.o
 	rm -f EpollEchoServer.o
-	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../uSockets/src EpollEchoServerPubSub.cpp -o $(OUT)/EpollEchoServerPubSub $(LIB_FUZZING_ENGINE) *.o
+	$(CXX) $(CXXFLAGS) $(WRAPPED_SYSCALLS) -std=c++17 -O3 -DUWS_MOCK_ZLIB -I../src -I../fastSockets/src EpollEchoServerPubSub.cpp -o $(OUT)/EpollEchoServerPubSub $(LIB_FUZZING_ENGINE) *.o
 # "Unit tests"
 	$(CXX) $(CXXFLAGS) -std=c++17 -O3 Extensions.cpp -o $(OUT)/Extensions $(LIB_FUZZING_ENGINE)
 	$(CXX) $(CXXFLAGS) -std=c++17 -O3 QueryParser.cpp -o $(OUT)/QueryParser $(LIB_FUZZING_ENGINE)
 	$(CXX) $(CXXFLAGS) -std=c++17 -O3 MultipartParser.cpp -o $(OUT)/MultipartParser $(LIB_FUZZING_ENGINE)
-	$(CXX) $(CXXFLAGS) -std=c++17 -O3 -I../uSockets/src WebSocket.cpp -o $(OUT)/WebSocket $(LIB_FUZZING_ENGINE)
+	$(CXX) $(CXXFLAGS) -std=c++17 -O3 -I../fastSockets/src WebSocket.cpp -o $(OUT)/WebSocket $(LIB_FUZZING_ENGINE)
 	$(CXX) $(CXXFLAGS) -std=c++17 -O3 Http.cpp -o $(OUT)/Http $(LIB_FUZZING_ENGINE)
 	$(CXX) $(CXXFLAGS) -DUWS_WITH_PROXY -std=c++17 -O3 Http.cpp -o $(OUT)/HttpWithProxy $(LIB_FUZZING_ENGINE)
 	$(CXX) $(CXXFLAGS) -DUWS_MOCK_ZLIB -std=c++17 -O3 PerMessageDeflate.cpp -o $(OUT)/PerMessageDeflate $(LIB_FUZZING_ENGINE)

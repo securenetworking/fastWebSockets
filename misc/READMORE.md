@@ -33,8 +33,8 @@ The project is async only and runs local to one thread. You scale it as individu
 
 There are a few compilation flags for µSockets (see its documentation), but common between µSockets and µWebSockets flags are as follows:
 
-* LIBUS_NO_SSL - disable OpenSSL dependency/functionality for uSockets and uWebSockets builds
-* UWS_NO_ZLIB - disable Zlib dependency/functionality for uWebSockets
+* LIBUS_NO_SSL - disable OpenSSL dependency/functionality for fastsockets and fastWebSockets builds
+* UWS_NO_ZLIB - disable Zlib dependency/functionality for fastWebSockets
 
 You can use the Makefile on Linux and macOS. It is simple to use and builds the examples for you. `WITH_OPENSSL=1 make` builds all examples with SSL enabled. Examples will fail to listen if cert and key cannot be found, so make sure to specify a path that works for you.
 
@@ -196,7 +196,7 @@ App.listen(port, [](auto *listenSocket) {
 })
 ```
 
-Canceling listening is done with the uSockets function call `us_listen_socket_close`.
+Canceling listening is done with the fastsockets function call `us_listen_socket_close`.
 
 ### App.run and fallthrough
 When you are done and want to enter the event loop, you call, once and only once, App.run.

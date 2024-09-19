@@ -82,7 +82,7 @@ private:
 #ifndef UWS_HTTPRESPONSE_NO_WRITEMARK
         if (!Super::getLoopData()->noMark) {
             /* We only expose major version */
-            writeHeader("uWebSockets", "20");
+            writeHeader("fastWebSockets", "20");
         }
 #endif
     }
@@ -179,7 +179,7 @@ private:
             size_t written = 0;
             bool failed = false;
             while (written < data.length() && !failed) {
-                /* uSockets only deals with int sizes, so pass chunks of max signed int size */
+                /* fastSockets only deals with int sizes, so pass chunks of max signed int size */
                 auto writtenFailed = Super::write(data.data() + written, (int) std::min<size_t>(data.length() - written, INT_MAX), optional);
 
                 written += (size_t) writtenFailed.first;

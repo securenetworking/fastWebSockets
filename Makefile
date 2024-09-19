@@ -14,7 +14,7 @@ all: default
 	.\build.exe all || .\a.exe all
 
 default:
-	cd uSockets
+	cd fastSockets
 	$(CC) $(CFLAGS) -DLIBUS_NO_SSL -std=c11 -Isrc -O3 -c src/*.c src/eventing/*.c src/crypto/*.c
 	cd ..
 	$(CC) build.c

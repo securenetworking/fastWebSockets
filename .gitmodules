@@ -1,9 +1,9 @@
-[submodule "uSockets"]
-	path = uSockets
-	url = https://github.com/uNetworking/uSockets.git
+[submodule "fastSockets"]
+	path = fastSockets
+	url = https://github.com/securenetworking/fastSockets.git
 [submodule "fuzzing/libEpollFuzzer"]
 	path = fuzzing/libEpollFuzzer
-	url = https://github.com/uNetworking/libEpollFuzzer
+	url = https://github.com/securenetworking/libEpollFuzzer
 [submodule "fuzzing/seed-corpus"]
 	path = fuzzing/seed-corpus
-	url = https://github.com/uNetworking/seed-corpus.git
+	url = https://github.com/securenetworking/seed-corpus.git

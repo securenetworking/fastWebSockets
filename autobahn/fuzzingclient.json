@@ -2,7 +2,7 @@
   "outdir": "./reports/servers",
   "servers": [
     {
-      "agent": "uWebSockets",
+      "agent": "fastWebSockets",
       "url": "ws://localhost:9001"
     }
   ],

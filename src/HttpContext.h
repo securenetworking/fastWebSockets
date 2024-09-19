@@ -66,7 +66,7 @@ private:
         return (HttpContextData<SSL> *) us_socket_context_ext(SSL, getSocketContext(s));
     }
 
-    /* Init the HttpContext by registering libusockets event handlers */
+    /* Init the HttpContext by registering libfastsockets event handlers */
     HttpContext<SSL> *init() {
         /* Handle socket connections */
         us_socket_context_on_open(SSL, getSocketContext(), [](us_socket_t *s, int /*is_client*/, char */*ip*/, int /*ip_length*/) {
